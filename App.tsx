@@ -174,7 +174,6 @@ const DraftSummary: React.FC<{ team: Team }> = ({ team }) => {
     </div>
   );
 };
-
 const DefenseGrid: React.FC<{ team: Team }> = ({ team }) => {
   const [useAbilities, setUseAbilities] = useState(false);
 
@@ -252,7 +251,6 @@ const DefenseGrid: React.FC<{ team: Team }> = ({ team }) => {
     </div>
   );
 };
-
 const CoverageCard: React.FC<{ attacker: Pokemon, defender: Team, useAbilities: boolean }> = ({ attacker, defender, useAbilities }) => {
   const [physEnabled, setPhysEnabled] = useState(true);
   const [specEnabled, setSpecEnabled] = useState(true);
@@ -387,7 +385,6 @@ const CoverageCard: React.FC<{ attacker: Pokemon, defender: Team, useAbilities: 
     </div>
   )
 };
-
 const CoverageAnalysis: React.FC<{ attacker: Team, defender: Team }> = ({ attacker, defender }) => {
   const [useAbilities, setUseAbilities] = useState(true);
   return (
@@ -407,7 +404,6 @@ const CoverageAnalysis: React.FC<{ attacker: Team, defender: Team }> = ({ attack
     </div>
   );
 };
-
 const UtilityAnalysis: React.FC<{ team: Team }> = ({ team }) => {
    const [openCategories, setOpenCategories] = useState<Set<string>>(new Set());
    const categories = Object.keys(MOVE_CATEGORIES);
@@ -476,7 +472,6 @@ const UtilityAnalysis: React.FC<{ team: Team }> = ({ team }) => {
      </div>
    )
 };
-
 const SpeedChart: React.FC<{ teamA: Team; teamB: Team }> = ({ teamA, teamB }) => {
   const processedMons = useMemo(() => {
     const list: any[] = [];
@@ -539,7 +534,6 @@ const SpeedChart: React.FC<{ teamA: Team; teamB: Team }> = ({ teamA, teamB }) =>
     </div>
   );
 };
-
 const TeraAnalysis: React.FC<{ team: Team }> = ({ team }) => {
    return (
       <div className="bg-gray-800 rounded border border-gray-700 p-4 mt-6">
@@ -645,21 +639,9 @@ const MatchReportModal: React.FC<{
     const [scoreA, setScoreA] = useState(0);
     const [scoreB, setScoreB] = useState(0);
     const [replay, setReplay] = useState('');
-    
-    // Detailed Stats State
     const [activeTab, setActiveTab] = useState<'score' | 'teamA' | 'teamB'>('score');
-    
-    const [detailsA, setDetailsA] = useState<{
-        used: Set<number>, 
-        kills: Record<number, number>, 
-        deaths: Record<number, number>
-    }>({ used: new Set(), kills: {}, deaths: {} });
-
-    const [detailsB, setDetailsB] = useState<{
-        used: Set<number>, 
-        kills: Record<number, number>, 
-        deaths: Record<number, number>
-    }>({ used: new Set(), kills: {}, deaths: {} });
+    const [detailsA, setDetailsA] = useState<{ used: Set<number>, kills: Record<number, number>, deaths: Record<number, number> }>({ used: new Set(), kills: {}, deaths: {} });
+    const [detailsB, setDetailsB] = useState<{ used: Set<number>, kills: Record<number, number>, deaths: Record<number, number> }>({ used: new Set(), kills: {}, deaths: {} });
 
     const tA = league.teams.find(t => t.id === match.teamAId);
     const tB = league.teams.find(t => t.id === match.teamBId);
@@ -669,41 +651,24 @@ const MatchReportModal: React.FC<{
     const toggleUsed = (team: 'A'|'B', pid: number) => {
         const target = team === 'A' ? detailsA : detailsB;
         const setTarget = team === 'A' ? setDetailsA : setDetailsB;
-        
         const newUsed = new Set(target.used);
         if (newUsed.has(pid)) newUsed.delete(pid);
         else newUsed.add(pid);
-        
         setTarget({ ...target, used: newUsed });
     };
 
     const updateStat = (team: 'A'|'B', type: 'kills'|'deaths', pid: number, val: number) => {
         const target = team === 'A' ? detailsA : detailsB;
         const setTarget = team === 'A' ? setDetailsA : setDetailsB;
-        
-        setTarget({
-            ...target,
-            [type]: { ...target[type], [pid]: val }
-        });
+        setTarget({ ...target, [type]: { ...target[type], [pid]: val } });
     };
 
     const handleSubmit = () => {
         const winnerId = scoreA > scoreB ? match.teamAId : match.teamBId;
         onSubmit({
-            scoreA,
-            scoreB,
-            winnerId,
-            replayUrl: replay,
-            teamADetails: {
-                pokemonUsed: Array.from(detailsA.used),
-                kills: detailsA.kills,
-                deaths: detailsA.deaths
-            },
-            teamBDetails: {
-                pokemonUsed: Array.from(detailsB.used),
-                kills: detailsB.kills,
-                deaths: detailsB.deaths
-            }
+            scoreA, scoreB, winnerId, replayUrl: replay,
+            teamADetails: { pokemonUsed: Array.from(detailsA.used), kills: detailsA.kills, deaths: detailsA.deaths },
+            teamBDetails: { pokemonUsed: Array.from(detailsB.used), kills: detailsB.kills, deaths: detailsB.deaths }
         });
     };
 
@@ -722,24 +687,11 @@ const MatchReportModal: React.FC<{
                             <div className="flex gap-4 pl-8">
                                 <div className="flex items-center gap-1">
                                     <span className="text-xs text-green-400 font-bold">Kills</span>
-                                    <input 
-                                        type="number" 
-                                        min="0"
-                                        className="w-12 bg-gray-900 border border-gray-600 rounded px-1 text-center text-sm"
-                                        value={details.kills[p.id] || 0}
-                                        onChange={(e) => updateStat(teamKey, 'kills', p.id, parseInt(e.target.value)||0)}
-                                    />
+                                    <input type="number" min="0" className="w-12 bg-gray-900 border border-gray-600 rounded px-1 text-center text-sm" value={details.kills[p.id] || 0} onChange={(e) => updateStat(teamKey, 'kills', p.id, parseInt(e.target.value)||0)} />
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <span className="text-xs text-red-400 font-bold">Deaths</span>
-                                    <input 
-                                        type="number" 
-                                        min="0" 
-                                        max="3"
-                                        className="w-12 bg-gray-900 border border-gray-600 rounded px-1 text-center text-sm"
-                                        value={details.deaths[p.id] || 0}
-                                        onChange={(e) => updateStat(teamKey, 'deaths', p.id, parseInt(e.target.value)||0)}
-                                    />
+                                    <input type="number" min="0" max="3" className="w-12 bg-gray-900 border border-gray-600 rounded px-1 text-center text-sm" value={details.deaths[p.id] || 0} onChange={(e) => updateStat(teamKey, 'deaths', p.id, parseInt(e.target.value)||0)} />
                                 </div>
                             </div>
                         )}
@@ -760,7 +712,6 @@ const MatchReportModal: React.FC<{
                         <button onClick={() => setActiveTab('teamB')} className={`px-3 py-1 text-xs rounded font-bold ${activeTab === 'teamB' ? 'bg-red-900 text-red-100' : 'text-gray-400'}`}>{tB.name}</button>
                     </div>
                 </div>
-
                 <div className="p-6 overflow-y-auto flex-1">
                     {activeTab === 'score' && (
                         <div className="space-y-6">
@@ -784,11 +735,9 @@ const MatchReportModal: React.FC<{
                             </div>
                         </div>
                     )}
-
                     {activeTab === 'teamA' && renderTeamStats(tA, detailsA, 'A')}
                     {activeTab === 'teamB' && renderTeamStats(tB, detailsB, 'B')}
                 </div>
-
                 <div className="p-4 border-t border-gray-700 flex gap-4">
                     <button onClick={onClose} className="flex-1 bg-gray-700 py-3 rounded font-bold hover:bg-gray-600">Cancel</button>
                     <button onClick={handleSubmit} className="flex-1 bg-green-600 py-3 rounded font-bold hover:bg-green-500 shadow-lg">Submit Final Result</button>
@@ -798,57 +747,29 @@ const MatchReportModal: React.FC<{
     );
 };
 
-const Navbar: React.FC<{
-    user: User;
-    onLogout: () => void;
-    leagueName?: string;
-    onBack?: () => void;
-    activeTab: string;
-    onTabChange: (t: string) => void;
-}> = ({ user, onLogout, leagueName, onBack, activeTab, onTabChange }) => {
+const Navbar: React.FC<{ user: User; onLogout: () => void; leagueName?: string; onBack?: () => void; activeTab: string; onTabChange: (t: string) => void; }> = ({ user, onLogout, leagueName, onBack, activeTab, onTabChange }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     return (
         <nav className="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
             <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                    {onBack && (
-                        <button onClick={onBack} className="p-2 hover:bg-gray-700 rounded-full text-gray-400 hover:text-white">
-                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                        </button>
-                    )}
+                    {onBack && (<button onClick={onBack} className="p-2 hover:bg-gray-700 rounded-full text-gray-400 hover:text-white"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>)}
                     <span className="text-xl font-bold text-yellow-400 tracking-tight">PokeDraft Hub</span>
-                    {leagueName && (
-                        <>
-                            <span className="text-gray-600 hidden md:inline">/</span>
-                            <span className="font-bold text-white hidden md:inline">{leagueName}</span>
-                        </>
-                    )}
+                    {leagueName && (<><span className="text-gray-600 hidden md:inline">/</span><span className="font-bold text-white hidden md:inline">{leagueName}</span></>)}
                 </div>
-
                 <div className="hidden md:flex items-center gap-4">
-                    <div className="text-sm text-right">
-                        <div className="font-bold text-white">{user.email}</div>
-                        <div className="text-xs text-gray-500">Coach</div>
-                    </div>
+                    <div className="text-sm text-right"><div className="font-bold text-white">{user.email}</div><div className="text-xs text-gray-500">Coach</div></div>
                     <button onClick={onLogout} className="text-xs bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded text-gray-300">Sign Out</button>
                 </div>
-                
-                <button className="md:hidden p-2 text-gray-400" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                   <MenuIcon />
-                </button>
+                <button className="md:hidden p-2 text-gray-400" onClick={() => setIsMenuOpen(!isMenuOpen)}><MenuIcon /></button>
             </div>
-            
-            {/* Mobile Menu */}
             {isMenuOpen && (
                 <div className="md:hidden bg-gray-800 border-t border-gray-700 p-4 space-y-4">
                      {leagueName && <div className="font-bold text-center text-white pb-2 border-b border-gray-700">{leagueName}</div>}
-                     {/* Mobile Tabs for Season View if active */}
                      {leagueName && (
                         <div className="grid grid-cols-2 gap-2">
                            {['home', 'standings', 'schedule', 'playoffs', 'mvp', 'transactions', 'myteam', 'analysis'].map(t => (
-                              <button key={t} onClick={() => {onTabChange(t); setIsMenuOpen(false);}} className={`p-2 rounded text-xs font-bold uppercase ${activeTab === t ? 'bg-yellow-500 text-black' : 'bg-gray-700 text-gray-300'}`}>
-                                 {t}
-                              </button>
+                              <button key={t} onClick={() => {onTabChange(t); setIsMenuOpen(false);}} className={`p-2 rounded text-xs font-bold uppercase ${activeTab === t ? 'bg-yellow-500 text-black' : 'bg-gray-700 text-gray-300'}`}>{t}</button>
                            ))}
                         </div>
                      )}
@@ -861,11 +782,9 @@ const Navbar: React.FC<{
         </nav>
     );
 };
-
 const TierRow: React.FC<{ points: number, pokemons: Pokemon[] }> = ({ points, pokemons }) => {
     const [expanded, setExpanded] = useState(false);
     const displayList = expanded ? pokemons : pokemons.slice(0, 12);
-
     return (
         <div className="mb-4">
             <h4 className="text-yellow-400 font-bold mb-2 border-b border-gray-700 pb-1 flex justify-between items-end">
@@ -880,28 +799,17 @@ const TierRow: React.FC<{ points: number, pokemons: Pokemon[] }> = ({ points, po
                     </div>
                 ))}
             </div>
-            {pokemons.length > 12 && (
-                <button onClick={() => setExpanded(!expanded)} className="text-xs text-blue-400 hover:text-blue-300 mt-1 w-full text-center py-1 bg-gray-800/50 rounded">
-                    {expanded ? 'Show Less' : `+${pokemons.length - 12} More`}
-                </button>
-            )}
+            {pokemons.length > 12 && (<button onClick={() => setExpanded(!expanded)} className="text-xs text-blue-400 hover:text-blue-300 mt-1 w-full text-center py-1 bg-gray-800/50 rounded">{expanded ? 'Show Less' : `+${pokemons.length - 12} More`}</button>)}
         </div>
     );
 };
-
 const LeagueLobby: React.FC<{ league: LeagueState; user: User }> = ({ league, user }) => {
    const isCommish = league.commissionerId === user.uid;
-   
-   // Group pokemon by points
    const tiers = useMemo(() => {
        const map = new Map<number, Pokemon[]>();
-       league.pokemonPool.forEach(p => {
-           if (!map.has(p.points)) map.set(p.points, []);
-           map.get(p.points)!.push(p);
-       });
+       league.pokemonPool.forEach(p => { if (!map.has(p.points)) map.set(p.points, []); map.get(p.points)!.push(p); });
        return Array.from(map.entries()).sort((a,b) => b[0] - a[0]);
    }, [league.pokemonPool]);
-   
    return (
       <div className="p-8 text-center max-w-6xl mx-auto animate-fade-in">
          <h2 className="text-3xl font-bold mb-4">League Lobby</h2>
@@ -910,137 +818,48 @@ const LeagueLobby: React.FC<{ league: LeagueState; user: User }> = ({ league, us
             <div className="text-5xl font-mono font-bold text-yellow-400 tracking-widest mb-2 select-all">{league.joinCode}</div>
             <div className="text-sm text-gray-500">Share this code with your friends to join</div>
          </div>
-         
          <div className="grid grid-cols-2 gap-4 mb-8 max-w-2xl mx-auto">
-             <div className="bg-gray-800 p-4 rounded border border-gray-700">
-                 <div className="text-xs text-gray-500 uppercase tracking-widest">Total Budget</div>
-                 <div className="text-2xl font-bold text-green-400">{league.draftConfig.totalBudget} pts</div>
-             </div>
-             <div className="bg-gray-800 p-4 rounded border border-gray-700">
-                 <div className="text-xs text-gray-500 uppercase tracking-widest">Roster Size</div>
-                 <div className="text-2xl font-bold text-blue-400">{league.draftConfig.maxPokemon} mons</div>
-             </div>
+             <div className="bg-gray-800 p-4 rounded border border-gray-700"><div className="text-xs text-gray-500 uppercase tracking-widest">Total Budget</div><div className="text-2xl font-bold text-green-400">{league.draftConfig.totalBudget} pts</div></div>
+             <div className="bg-gray-800 p-4 rounded border border-gray-700"><div className="text-xs text-gray-500 uppercase tracking-widest">Roster Size</div><div className="text-2xl font-bold text-blue-400">{league.draftConfig.maxPokemon} mons</div></div>
          </div>
-
          <div className="mb-8">
             <h3 className="font-bold text-xl mb-4 text-left">Registered Teams ({league.teams.length}/{league.maxPlayers})</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-               {league.teams.map(t => (
-                  <div key={t.id} className="bg-gray-800 p-4 rounded-lg flex items-center gap-4 border border-gray-700 shadow-md">
-                     <img src={t.logoUrl} className="w-12 h-12 rounded-full bg-black border border-gray-600 object-cover"/>
-                     <div className="text-left overflow-hidden">
-                        <div className="font-bold truncate">{t.name}</div>
-                        <div className="text-xs text-gray-400 truncate">{t.coachName}</div>
-                     </div>
-                  </div>
-               ))}
-               {Array.from({length: Math.max(0, league.maxPlayers - league.teams.length)}).map((_, i) => (
-                  <div key={i} className="bg-gray-800/30 p-4 rounded-lg border-2 border-dashed border-gray-700 flex items-center justify-center text-gray-500">
-                     Waiting for player...
-                  </div>
-               ))}
+               {league.teams.map(t => (<div key={t.id} className="bg-gray-800 p-4 rounded-lg flex items-center gap-4 border border-gray-700 shadow-md"><img src={t.logoUrl} className="w-12 h-12 rounded-full bg-black border border-gray-600 object-cover"/><div className="text-left overflow-hidden"><div className="font-bold truncate">{t.name}</div><div className="text-xs text-gray-400 truncate">{t.coachName}</div></div></div>))}
+               {Array.from({length: Math.max(0, league.maxPlayers - league.teams.length)}).map((_, i) => (<div key={i} className="bg-gray-800/30 p-4 rounded-lg border-2 border-dashed border-gray-700 flex items-center justify-center text-gray-500">Waiting for player...</div>))}
             </div>
          </div>
-
-         <div className="mb-8 bg-gray-900 rounded border border-gray-800 p-4 text-left">
-            <h3 className="font-bold text-xl mb-4">Draft Pool Preview</h3>
-            <div className="space-y-2">
-                {tiers.map(([points, mons]) => (
-                    <TierRow key={points} points={points} pokemons={mons} />
-                ))}
-            </div>
-         </div>
-
+         <div className="mb-8 bg-gray-900 rounded border border-gray-800 p-4 text-left"><h3 className="font-bold text-xl mb-4">Draft Pool Preview</h3><div className="space-y-2">{tiers.map(([points, mons]) => (<TierRow key={points} points={points} pokemons={mons} />))}</div></div>
          {isCommish ? (
-            <button 
-              disabled={league.teams.length < 2}
-              onClick={async () => {
+            <button disabled={league.teams.length < 2} onClick={async () => {
                  const pickOrder = league.teams.map(t => t.id);
-                 // Fisher-Yates shuffle
-                 for (let i = pickOrder.length - 1; i > 0; i--) {
-                     const j = Math.floor(Math.random() * (i + 1));
-                     [pickOrder[i], pickOrder[j]] = [pickOrder[j], pickOrder[i]];
-                 }
-
-                 await updateDoc(doc(db, 'leagues', league.id!), {
-                    phase: 'draft',
-                    'draftConfig.pickOrder': pickOrder,
-                    'draftConfig.lastPickTime': Date.now(),
-                    'draftConfig.currentPickIndex': 0
-                 });
-              }}
-              className="bg-green-600 hover:bg-green-500 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-bold py-4 px-10 rounded-full text-xl shadow-lg transition transform hover:scale-105"
-            >
-               Start Snake Draft 🚀
-            </button>
-         ) : (
-            <div className="text-yellow-400 animate-pulse font-bold bg-yellow-900/20 p-4 rounded inline-block">Waiting for commissioner to start draft...</div>
-         )}
+                 for (let i = pickOrder.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pickOrder[i], pickOrder[j]] = [pickOrder[j], pickOrder[i]]; }
+                 await updateDoc(doc(db, 'leagues', league.id!), { phase: 'draft', 'draftConfig.pickOrder': pickOrder, 'draftConfig.lastPickTime': Date.now(), 'draftConfig.currentPickIndex': 0 });
+              }} className="bg-green-600 hover:bg-green-500 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-bold py-4 px-10 rounded-full text-xl shadow-lg transition transform hover:scale-105">Start Snake Draft 🚀</button>
+         ) : (<div className="text-yellow-400 animate-pulse font-bold bg-yellow-900/20 p-4 rounded inline-block">Waiting for commissioner to start draft...</div>)}
       </div>
    );
 };
-
 const TeamDetailModal: React.FC<{ team: Team, onClose: () => void }> = ({ team, onClose }) => {
     const [sort, setSort] = useState<string>('points');
     const [dir, setDir] = useState<'asc' | 'desc'>('desc');
-
     const sorted = [...team.roster].sort((a,b) => {
         let valA = sort === 'points' ? a.points : (a.stats as any)[sort];
         let valB = sort === 'points' ? b.points : (b.stats as any)[sort];
         return dir === 'asc' ? valA - valB : valB - valA;
     });
-
-    const handleSort = (key: string) => {
-        if (sort === key) setDir(dir === 'asc' ? 'desc' : 'asc');
-        else { setSort(key); setDir('desc'); }
-    }
-
+    const handleSort = (key: string) => { if (sort === key) setDir(dir === 'asc' ? 'desc' : 'asc'); else { setSort(key); setDir('desc'); } }
     return (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={onClose}>
             <div className="bg-gray-800 w-full max-w-4xl rounded-lg border border-gray-700 shadow-2xl flex flex-col max-h-[80vh]" onClick={e => e.stopPropagation()}>
                 <div className="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-900 rounded-t-lg">
-                    <div className="flex items-center gap-4">
-                        <img src={team.logoUrl} className="w-12 h-12 rounded-full border border-gray-600 bg-black object-cover"/>
-                        <div>
-                            <h2 className="text-2xl font-bold">{team.name}</h2>
-                            <div className="text-gray-400 text-sm">Coach: {team.coachName}</div>
-                        </div>
-                    </div>
-                    <button onClick={onClose}><XIcon /></button>
+                    <div className="flex items-center gap-4"><img src={team.logoUrl} className="w-12 h-12 rounded-full border border-gray-600 bg-black object-cover"/><div><h2 className="text-2xl font-bold">{team.name}</h2><div className="text-gray-400 text-sm">Coach: {team.coachName}</div></div></div><button onClick={onClose}><XIcon /></button>
                 </div>
-                <div className="overflow-auto p-4">
-                    <table className="w-full text-left text-sm">
-                        <thead className="bg-gray-900 text-gray-400 sticky top-0">
-                            <tr>
-                                <th className="p-2">Pokemon</th>
-                                <th className="p-2">Type</th>
-                                {['HP','Atk','Def','SpA','SpD','Spe'].map(s => (
-                                    <th key={s} className="p-2 text-center cursor-pointer hover:text-white" onClick={() => handleSort(s.toLowerCase())}>
-                                        {s} {sort === s.toLowerCase() && (dir === 'asc' ? '↑' : '↓')}
-                                    </th>
-                                ))}
-                                <th className="p-2">Abilities</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {sorted.map(p => (
-                                <tr key={p.id} className="border-b border-gray-700 hover:bg-white/5">
-                                    <td className="p-2 flex items-center gap-2 font-bold">
-                                        <PokemonImage src={p.sprite} alt={p.name} className="w-8 h-8" /> {p.name}
-                                    </td>
-                                    <td className="p-2"><div className="flex gap-1">{p.types.map(t => <TypeBadge key={t} type={t} size="sm"/>)}</div></td>
-                                    {getStatValues(p).map((v, i) => <td key={i} className="p-2 text-center font-mono">{v}</td>)}
-                                    <td className="p-2 text-xs text-gray-400">{p.abilities?.join(', ')}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                <div className="overflow-auto p-4"><table className="w-full text-left text-sm"><thead className="bg-gray-900 text-gray-400 sticky top-0"><tr><th className="p-2">Pokemon</th><th className="p-2">Type</th>{['HP','Atk','Def','SpA','SpD','Spe'].map(s => (<th key={s} className="p-2 text-center cursor-pointer hover:text-white" onClick={() => handleSort(s.toLowerCase())}>{s} {sort === s.toLowerCase() && (dir === 'asc' ? '↑' : '↓')}</th>))}<th className="p-2">Abilities</th></tr></thead><tbody>{sorted.map(p => (<tr key={p.id} className="border-b border-gray-700 hover:bg-white/5"><td className="p-2 flex items-center gap-2 font-bold"><PokemonImage src={p.sprite} alt={p.name} className="w-8 h-8" /> {p.name}</td><td className="p-2"><div className="flex gap-1">{p.types.map(t => <TypeBadge key={t} type={t} size="sm"/>)}</div></td>{getStatValues(p).map((v, i) => <td key={i} className="p-2 text-center font-mono">{v}</td>)}<td className="p-2 text-xs text-gray-400">{p.abilities?.join(', ')}</td></tr>))}</tbody></table></div>
             </div>
         </div>
     )
 }
-
 const DraftView: React.FC<{ league: LeagueState; user: User }> = ({ league, user }) => {
    const [search, setSearch] = useState('');
    const [filterTier, setFilterTier] = useState('All');
@@ -1049,264 +868,98 @@ const DraftView: React.FC<{ league: LeagueState; user: User }> = ({ league, user
    const [limit, setLimit] = useState(50);
    const [selectedPick, setSelectedPick] = useState<Pokemon | null>(null);
    const [viewTeam, setViewTeam] = useState<Team | null>(null);
-   
-   // Mock timer for display - real logic would use server timestamp
    const [timer, setTimer] = useState(24 * 60 * 60);
 
-   useEffect(() => {
-       const interval = setInterval(() => {
-           const elapsed = Math.floor((Date.now() - league.draftConfig.lastPickTime) / 1000);
-           setTimer(Math.max(0, (24 * 60 * 60) - elapsed));
-       }, 1000);
-       return () => clearInterval(interval);
-   }, [league.draftConfig.lastPickTime]);
-
-   const formatTime = (s: number) => {
-       const h = Math.floor(s / 3600);
-       const m = Math.floor((s % 3600) / 60);
-       const sec = s % 60;
-       return `${h}:${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
-   };
-   
+   useEffect(() => { const interval = setInterval(() => { const elapsed = Math.floor((Date.now() - league.draftConfig.lastPickTime) / 1000); setTimer(Math.max(0, (24 * 60 * 60) - elapsed)); }, 1000); return () => clearInterval(interval); }, [league.draftConfig.lastPickTime]);
+   const formatTime = (s: number) => { const h = Math.floor(s / 3600); const m = Math.floor((s % 3600) / 60); const sec = s % 60; return `${h}:${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`; };
    const totalTeams = league.draftConfig.pickOrder.length;
    const round = Math.floor(league.draftConfig.currentPickIndex / totalTeams);
    const pickInRound = league.draftConfig.currentPickIndex % totalTeams;
-   
-   const currentTeamId = (round % 2 === 0) 
-      ? league.draftConfig.pickOrder[pickInRound]
-      : league.draftConfig.pickOrder[totalTeams - 1 - pickInRound];
-      
+   const currentTeamId = (round % 2 === 0) ? league.draftConfig.pickOrder[pickInRound] : league.draftConfig.pickOrder[totalTeams - 1 - pickInRound];
    const currentTeam = league.teams.find(t => t.id === currentTeamId);
    const myTeam = league.teams.find(t => t.ownerId === user.uid);
    const isMyTurn = currentTeam?.ownerId === user.uid;
    const isCommish = league.commissionerId === user.uid;
-   
    const draftedIds = new Set<number>();
    league.teams.forEach(t => t.roster.forEach(p => draftedIds.add(p.id)));
-   
    const availablePokemon = league.pokemonPool.filter(p => !draftedIds.has(p.id));
-   
    const confirmDraft = async () => {
-      if (!selectedPick) return;
-      if (!currentTeam) return;
-      
-      if (currentTeam.roster.length >= league.draftConfig.maxPokemon) {
-          alert("Roster full!");
-          return;
-      }
-      if (currentTeam.budgetUsed + selectedPick.points > league.draftConfig.totalBudget) {
-          alert("Not enough budget!");
-          return;
-      }
-      
-      // DEEP CLONE and MINIFY to prevent 1MB limit crash
-      const newTeams = league.teams.map(t => {
-          if (t.id === currentTeamId) {
-              return {
-                  ...t,
-                  budgetUsed: t.budgetUsed + selectedPick.points,
-                  roster: [...t.roster.map(minifyPokemon), minifyPokemon(selectedPick)]
-              };
-          }
-          return {
-              ...t,
-              roster: t.roster.map(minifyPokemon)
-          };
-      });
-      
-      const updates: any = {
-         teams: newTeams,
-         'draftConfig.currentPickIndex': league.draftConfig.currentPickIndex + 1,
-         'draftConfig.lastPickTime': Date.now()
-      };
-      
+      if (!selectedPick || !currentTeam) return;
+      if (currentTeam.roster.length >= league.draftConfig.maxPokemon) { alert("Roster full!"); return; }
+      if (currentTeam.budgetUsed + selectedPick.points > league.draftConfig.totalBudget) { alert("Not enough budget!"); return; }
+      const newTeams = league.teams.map(t => { if (t.id === currentTeamId) { return { ...t, budgetUsed: t.budgetUsed + selectedPick.points, roster: [...t.roster.map(minifyPokemon), minifyPokemon(selectedPick)] }; } return { ...t, roster: t.roster.map(minifyPokemon) }; });
+      const updates: any = { teams: newTeams, 'draftConfig.currentPickIndex': league.draftConfig.currentPickIndex + 1, 'draftConfig.lastPickTime': Date.now() };
       const totalSlots = totalTeams * league.draftConfig.maxPokemon;
-      if (league.draftConfig.currentPickIndex + 1 >= totalSlots) {
-         updates.phase = 'season';
-         updates.schedule = generateSchedule(newTeams);
-         updates.currentWeek = 1;
-      }
-      
+      if (league.draftConfig.currentPickIndex + 1 >= totalSlots) { updates.phase = 'season'; updates.schedule = generateSchedule(newTeams); updates.currentWeek = 1; }
       await updateDoc(doc(db, 'leagues', league.id!), updates);
       setSelectedPick(null);
    };
-
-   const filtered = availablePokemon.filter(p => {
-       const matchName = p.name.toLowerCase().includes(search.toLowerCase());
-       const matchTier = filterTier === 'All' || p.tier === filterTier;
-       const matchType = filterType === 'All' || p.types.includes(filterType);
-       const matchPoint = filterPoints === 'All' || p.points === parseInt(filterPoints);
-       return matchName && matchTier && matchType && matchPoint;
-   }).sort((a,b) => b.points - a.points);
-
+   const filtered = availablePokemon.filter(p => { return p.name.toLowerCase().includes(search.toLowerCase()) && (filterTier === 'All' || p.tier === filterTier) && (filterType === 'All' || p.types.includes(filterType)) && (filterPoints === 'All' || p.points === parseInt(filterPoints)); }).sort((a,b) => b.points - a.points);
    const canPick = isMyTurn || isCommish;
 
    return (
       <div className="flex flex-col h-[calc(100vh-80px)] relative">
          <div className="bg-gray-800 border-b border-gray-700 p-4 shadow-lg shrink-0 z-20">
             <div className="flex justify-between items-center max-w-7xl mx-auto">
-               <div>
-                  <h2 className="text-2xl font-bold text-yellow-400">Draft Room</h2>
-                  <div className="text-sm text-gray-400">Round {round + 1} • Pick {pickInRound + 1}</div>
-               </div>
-               <div className="text-center">
-                  <div className="text-xs text-gray-500 uppercase tracking-widest mb-1">Current Pick</div>
-                  <div className={`text-xl font-bold ${isMyTurn ? 'text-green-400 animate-pulse' : 'text-white'}`}>
-                     {isMyTurn ? 'Your Turn!' : `${currentTeam?.name}`}
-                  </div>
-               </div>
-               <div className="text-center">
-                   <div className="text-xs text-gray-500 uppercase tracking-widest mb-1">Time Left</div>
-                   <div className="text-xl font-mono font-bold text-red-400">{formatTime(timer)}</div>
-               </div>
-               <div className="text-right">
-                  <div className="text-xs text-gray-500 uppercase tracking-widest mb-1">My Budget</div>
-                  {myTeam && (
-                     <div className="text-xl font-bold font-mono text-blue-400">
-                        {myTeam.budgetUsed} / {league.draftConfig.totalBudget}
-                     </div>
-                  )}
-               </div>
+               <div><h2 className="text-2xl font-bold text-yellow-400">Draft Room</h2><div className="text-sm text-gray-400">Round {round + 1} • Pick {pickInRound + 1}</div></div>
+               <div className="text-center"><div className="text-xs text-gray-500 uppercase tracking-widest mb-1">Current Pick</div><div className={`text-xl font-bold ${isMyTurn ? 'text-green-400 animate-pulse' : 'text-white'}`}>{isMyTurn ? 'Your Turn!' : `${currentTeam?.name}`}</div></div>
+               <div className="text-center"><div className="text-xs text-gray-500 uppercase tracking-widest mb-1">Time Left</div><div className="text-xl font-mono font-bold text-red-400">{formatTime(timer)}</div></div>
+               <div className="text-right"><div className="text-xs text-gray-500 uppercase tracking-widest mb-1">My Budget</div>{myTeam && (<div className="text-xl font-bold font-mono text-blue-400">{myTeam.budgetUsed} / {league.draftConfig.totalBudget}</div>)}</div>
             </div>
          </div>
-         
          <div className="flex flex-1 overflow-hidden">
              <div className="flex-1 bg-gray-900 p-4 overflow-y-auto pb-24">
                 <div className="max-w-6xl mx-auto">
                     <div className="flex gap-4 mb-4 sticky top-0 bg-gray-900 z-10 p-2 border-b border-gray-800">
-                       <input 
-                         className="flex-1 bg-gray-800 p-2 rounded border border-gray-700 text-white" 
-                         placeholder="Search Pokemon..." 
-                         value={search} 
-                         onChange={e => setSearch(e.target.value)} 
-                       />
-                       <select className="bg-gray-800 p-2 rounded border border-gray-700 text-white" value={filterTier} onChange={e => setFilterTier(e.target.value)}>
-                          <option value="All">All Tiers</option>
-                          {['OU', 'UU', 'RU', 'NU', 'PU', 'LC'].map(t => <option key={t} value={t}>{t}</option>)}
-                       </select>
-                       <select className="bg-gray-800 p-2 rounded border border-gray-700 text-white" value={filterType} onChange={e => setFilterType(e.target.value)}>
-                          <option value="All">All Types</option>
-                          {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                       </select>
-                       <select className="bg-gray-800 p-2 rounded border border-gray-700 text-white" value={filterPoints} onChange={e => setFilterPoints(e.target.value)}>
-                          <option value="All">All Points</option>
-                          {Array.from({length: 20}, (_, i) => 20 - i).map(p => <option key={p} value={p}>{p} pts</option>)}
-                       </select>
+                       <input className="flex-1 bg-gray-800 p-2 rounded border border-gray-700 text-white" placeholder="Search Pokemon..." value={search} onChange={e => setSearch(e.target.value)} />
+                       <select className="bg-gray-800 p-2 rounded border border-gray-700 text-white" value={filterTier} onChange={e => setFilterTier(e.target.value)}><option value="All">All Tiers</option>{['OU', 'UU', 'RU', 'NU', 'PU', 'LC'].map(t => <option key={t} value={t}>{t}</option>)}</select>
+                       <select className="bg-gray-800 p-2 rounded border border-gray-700 text-white" value={filterType} onChange={e => setFilterType(e.target.value)}><option value="All">All Types</option>{TYPES.map(t => <option key={t} value={t}>{t}</option>)}</select>
+                       <select className="bg-gray-800 p-2 rounded border border-gray-700 text-white" value={filterPoints} onChange={e => setFilterPoints(e.target.value)}><option value="All">All Points</option>{Array.from({length: 20}, (_, i) => 20 - i).map(p => <option key={p} value={p}>{p} pts</option>)}</select>
                     </div>
-                    
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                        {filtered.slice(0, limit).map(p => {
                           const budgetToCheck = currentTeam ? currentTeam.budgetUsed : 0;
                           const canAfford = (budgetToCheck + p.points <= league.draftConfig.totalBudget);
                           const disabled = !canPick || !canAfford;
-                          const isSelected = selectedPick?.id === p.id;
-                          
                           return (
-                             <div key={p.id} className={`relative bg-gray-800 rounded border p-3 flex flex-col gap-2 transition group ${isSelected ? 'ring-2 ring-yellow-500 bg-gray-700' : 'border-gray-600 hover:bg-gray-700'} ${disabled ? 'opacity-50' : 'cursor-pointer'}`}
-                                  onClick={() => !disabled && setSelectedPick(p)}
-                             >
-                                <div className="flex justify-between items-start">
-                                   <span className={`font-bold text-lg ${canAfford ? 'text-yellow-500' : 'text-red-500'}`}>{p.points} pts</span>
-                                   <span className="text-xs text-gray-500">{p.tier}</span>
-                                </div>
-                                <div className="self-center my-2">
-                                   <PokemonImage src={p.sprite} alt={p.name} className="w-16 h-16" />
-                                </div>
+                             <div key={p.id} className={`relative bg-gray-800 rounded border p-3 flex flex-col gap-2 transition group ${selectedPick?.id === p.id ? 'ring-2 ring-yellow-500 bg-gray-700' : 'border-gray-600 hover:bg-gray-700'} ${disabled ? 'opacity-50' : 'cursor-pointer'}`} onClick={() => !disabled && setSelectedPick(p)}>
+                                <div className="flex justify-between items-start"><span className={`font-bold text-lg ${canAfford ? 'text-yellow-500' : 'text-red-500'}`}>{p.points} pts</span><span className="text-xs text-gray-500">{p.tier}</span></div>
+                                <div className="self-center my-2"><PokemonImage src={p.sprite} alt={p.name} className="w-16 h-16" /></div>
                                 <div className="text-center font-bold">{p.name}</div>
-                                <div className="flex justify-center gap-1 mb-2">
-                                   {p.types.map(t => <TypeBadge key={t} type={t} size="sm" />)}
-                                </div>
-                                <div className="grid grid-cols-6 gap-1 text-[10px] text-center bg-black/20 p-1 rounded">
-                                    {getStatValues(p).map((v, i) => (
-                                        <div key={i}>
-                                            <div className="text-gray-500">{STAT_LABELS[i]}</div>
-                                            <div className="font-mono text-white">{v}</div>
-                                        </div>
-                                    ))}
-                                </div>
+                                <div className="flex justify-center gap-1 mb-2">{p.types.map(t => <TypeBadge key={t} type={t} size="sm" />)}</div>
+                                <div className="grid grid-cols-6 gap-1 text-[10px] text-center bg-black/20 p-1 rounded">{getStatValues(p).map((v, i) => (<div key={i}><div className="text-gray-500">{STAT_LABELS[i]}</div><div className="font-mono text-white">{v}</div></div>))}</div>
                                 <div className="text-xs text-gray-400 mt-1 italic text-center truncate">{p.abilities?.join(', ')}</div>
-                                {!canAfford && (
-                                   <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-red-500 font-bold rounded">
-                                      Too Expensive
-                                   </div>
-                                )}
+                                {!canAfford && (<div className="absolute inset-0 bg-black/60 flex items-center justify-center text-red-500 font-bold rounded">Too Expensive</div>)}
                              </div>
                           );
                        })}
                     </div>
-                    {filtered.length > limit && (
-                        <div className="text-center mt-4">
-                            <button onClick={() => setLimit(l => l + 50)} className="bg-gray-700 hover:bg-gray-600 px-6 py-2 rounded text-white font-bold">Show More</button>
-                        </div>
-                    )}
+                    {filtered.length > limit && (<div className="text-center mt-4"><button onClick={() => setLimit(l => l + 50)} className="bg-gray-700 hover:bg-gray-600 px-6 py-2 rounded text-white font-bold">Show More</button></div>)}
                 </div>
              </div>
-             
              <div className="w-80 bg-gray-800 border-l border-gray-700 flex flex-col hidden xl:flex">
                  <div className="p-4 border-b border-gray-700 font-bold text-gray-400">Teams & Rosters</div>
                  <div className="flex-1 overflow-y-auto p-4 space-y-6">
                     {league.teams.map(t => {
                        const isPicking = t.id === currentTeamId;
-                       return (
-                          <div key={t.id} onClick={() => setViewTeam(t)} className={`rounded p-3 border transition cursor-pointer hover:bg-white/5 ${isPicking ? 'bg-yellow-900/20 border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.2)]' : 'bg-gray-700/30 border-gray-700'}`}>
-                             <div className="flex items-center gap-2 mb-2">
-                                <img src={t.logoUrl} className="w-8 h-8 rounded-full bg-black border border-gray-600" />
-                                <div className="overflow-hidden">
-                                   <div className={`font-bold truncate text-sm ${isPicking ? 'text-yellow-400' : 'text-gray-200'}`}>{t.name}</div>
-                                   <div className="text-xs text-gray-500">{t.roster.length}/{league.draftConfig.maxPokemon} • {t.budgetUsed} pts</div>
-                                </div>
-                             </div>
-                             <div className="flex flex-wrap gap-1">
-                                {t.roster.map(p => (
-                                   <div key={p.id} title={p.name} className="relative group">
-                                      <img src={p.sprite} className="w-8 h-8" />
-                                   </div>
-                                ))}
-                                {Array.from({length: Math.max(0, league.draftConfig.maxPokemon - t.roster.length)}).map((_, i) => (
-                                   <div key={i} className="w-8 h-8 bg-black/20 rounded-full border border-gray-600/50"></div>
-                                ))}
-                             </div>
-                          </div>
-                       )
+                       return (<div key={t.id} onClick={() => setViewTeam(t)} className={`rounded p-3 border transition cursor-pointer hover:bg-white/5 ${isPicking ? 'bg-yellow-900/20 border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.2)]' : 'bg-gray-700/30 border-gray-700'}`}><div className="flex items-center gap-2 mb-2"><img src={t.logoUrl} className="w-8 h-8 rounded-full bg-black border border-gray-600" /><div className="overflow-hidden"><div className={`font-bold truncate text-sm ${isPicking ? 'text-yellow-400' : 'text-gray-200'}`}>{t.name}</div><div className="text-xs text-gray-500">{t.roster.length}/{league.draftConfig.maxPokemon} • {t.budgetUsed} pts</div></div></div><div className="flex flex-wrap gap-1">{t.roster.map(p => (<div key={p.id} title={p.name} className="relative group"><img src={p.sprite} className="w-8 h-8" /></div>))}{Array.from({length: Math.max(0, league.draftConfig.maxPokemon - t.roster.length)}).map((_, i) => (<div key={i} className="w-8 h-8 bg-black/20 rounded-full border border-gray-600/50"></div>))}</div></div>)
                     })}
                  </div>
              </div>
          </div>
-
-         {/* Confirm Pick Footer */}
          {selectedPick && (
              <div className="absolute bottom-0 left-0 right-0 bg-gray-800 border-t border-yellow-500 p-4 shadow-2xl flex justify-between items-center z-50 animate-slide-up">
-                 <div className="flex items-center gap-4">
-                     <PokemonImage src={selectedPick.sprite} alt={selectedPick.name} className="w-16 h-16"/>
-                     <div>
-                         <div className="text-yellow-400 font-bold text-lg">Confirm Selection</div>
-                         <div className="text-white text-xl font-bold">{selectedPick.name} <span className="text-gray-400 text-base">({selectedPick.points} pts)</span></div>
-                     </div>
-                 </div>
-                 <div className="flex gap-4">
-                     <button onClick={() => setSelectedPick(null)} className="bg-gray-700 text-white px-6 py-3 rounded font-bold hover:bg-gray-600">Cancel</button>
-                     <button onClick={confirmDraft} className="bg-green-600 text-white px-8 py-3 rounded font-bold hover:bg-green-500 shadow-lg flex flex-col items-center leading-none">
-                         <span>{isMyTurn ? 'Draft Now' : isCommish ? 'Force Pick' : 'Draft'}</span>
-                         {isCommish && !isMyTurn && <span className="text-[10px] uppercase font-normal text-green-200 mt-1">Commissioner Override</span>}
-                     </button>
-                 </div>
+                 <div className="flex items-center gap-4"><PokemonImage src={selectedPick.sprite} alt={selectedPick.name} className="w-16 h-16"/><div><div className="text-yellow-400 font-bold text-lg">Confirm Selection</div><div className="text-white text-xl font-bold">{selectedPick.name} <span className="text-gray-400 text-base">({selectedPick.points} pts)</span></div></div></div>
+                 <div className="flex gap-4"><button onClick={() => setSelectedPick(null)} className="bg-gray-700 text-white px-6 py-3 rounded font-bold hover:bg-gray-600">Cancel</button><button onClick={confirmDraft} className="bg-green-600 text-white px-8 py-3 rounded font-bold hover:bg-green-500 shadow-lg flex flex-col items-center leading-none"><span>{isMyTurn ? 'Draft Now' : isCommish ? 'Force Pick' : 'Draft'}</span>{isCommish && !isMyTurn && <span className="text-[10px] uppercase font-normal text-green-200 mt-1">Commissioner Override</span>}</button></div>
              </div>
          )}
-
          {viewTeam && <TeamDetailModal team={viewTeam} onClose={() => setViewTeam(null)} />}
       </div>
    );
 };
-
-const DashboardView: React.FC<{ 
-  user: User; 
-  onSelectLeague: (leagueId: string, pool: Pokemon[]) => void;
-  availableLeagues: LeagueState[];
-}> = ({ user, onSelectLeague, availableLeagues }) => {
+const DashboardView: React.FC<{ user: User; onSelectLeague: (leagueId: string, pool: Pokemon[]) => void; availableLeagues: LeagueState[]; }> = ({ user, onSelectLeague, availableLeagues }) => {
   const [view, setView] = useState<'list'|'create'|'join'>('list');
   const [createStep, setCreateStep] = useState(0); 
-  
-  // Creation State
   const [newName, setNewName] = useState('');
   const [newLogo, setNewLogo] = useState('');
   const [newMaxPlayers, setNewMaxPlayers] = useState(8);
@@ -1319,110 +972,32 @@ const DashboardView: React.FC<{
   const [poolSearch, setPoolSearch] = useState('');
   const [poolLimit, setPoolLimit] = useState(50);
   const [poolPointFilter, setPoolPointFilter] = useState('All');
-  
-  // Join State
   const [joinCode, setJoinCode] = useState('');
   const [joinTeamName, setJoinTeamName] = useState('');
   const [joinCoachName, setJoinCoachName] = useState('');
   const [joinTeamLogo, setJoinTeamLogo] = useState(''); 
 
-  // Initial Pool Population
-  useEffect(() => {
-    if ((window as any).FULL_POKEDEX) {
-        setPoolEditorState((window as any).FULL_POKEDEX.map((p: Pokemon) => ({ 
-            ...p, 
-            isActive: !p.tier?.includes('Uber') // Default filter
-        })));
-    }
-  }, []);
-
-  const handlePoolPreset = (preset: string) => {
-      let newState = [...poolEditorState];
-      switch(preset) {
-          case 'All': newState = newState.map(p => ({...p, isActive: true})); break;
-          case 'None': newState = newState.map(p => ({...p, isActive: false})); break;
-          case 'Reg H': newState = newState.map(p => ({...p, isActive: !p.isNonstandard})); break; 
-          case 'Reg F': newState = newState.map(p => ({...p, isActive: !p.isNonstandard})); break; 
-      }
-      setPoolEditorState(newState);
-  };
-
+  useEffect(() => { if ((window as any).FULL_POKEDEX) { setPoolEditorState((window as any).FULL_POKEDEX.map((p: Pokemon) => ({ ...p, isActive: !p.tier?.includes('Uber') }))); } }, []);
+  const handlePoolPreset = (preset: string) => { let newState = [...poolEditorState]; switch(preset) { case 'All': newState = newState.map(p => ({...p, isActive: true})); break; case 'None': newState = newState.map(p => ({...p, isActive: false})); break; case 'Reg H': newState = newState.map(p => ({...p, isActive: !p.isNonstandard})); break; case 'Reg F': newState = newState.map(p => ({...p, isActive: !p.isNonstandard})); break; } setPoolEditorState(newState); };
   const handleCreateLeague = async () => {
     const activePool = poolEditorState.filter(p => p.isActive).map(({isActive, ...p}) => p);
     if (activePool.length < newMaxPlayers * 6) { alert('Pool too small'); return; }
-
-    const commishTeam: Team = {
-        id: `team-1-${Date.now()}`,
-        ownerId: user.uid,
-        name: commishTeamName,
-        logoUrl: commishTeamLogo || `https://ui-avatars.com/api/?name=${commishTeamName}&background=random`,
-        coachName: commishCoachName,
-        roster: [],
-        budgetUsed: 0,
-        wins: 0,
-        losses: 0,
-        differential: 0
-    };
-
-    // Strip movePool from the pool to save space
+    const commishTeam: Team = { id: `team-1-${Date.now()}`, ownerId: user.uid, name: commishTeamName, logoUrl: commishTeamLogo || `https://ui-avatars.com/api/?name=${commishTeamName}&background=random`, coachName: commishCoachName, roster: [], budgetUsed: 0, wins: 0, losses: 0, differential: 0 };
     const simplifiedPool = activePool.map(minifyPokemon);
-
-    const newLeague: Partial<LeagueState> = {
-      name: newName,
-      logoUrl: newLogo || `https://ui-avatars.com/api/?name=${newName}&background=random`,
-      commissionerId: user.uid,
-      maxPlayers: newMaxPlayers,
-      joinCode: Math.random().toString(36).substring(2, 8).toUpperCase(),
-      phase: 'setup',
-      currentWeek: 0,
-      teams: [commishTeam],
-      pokemonPool: simplifiedPool,
-      transactions: [],
-      draftConfig: {
-        totalBudget: newTotalBudget,
-        maxPokemon: newMaxPokemon, 
-        pickOrder: [],
-        currentPickIndex: 0,
-        direction: 'forward',
-        lastPickTime: 0
-      },
-      schedule: []
-    };
-
+    const newLeague: Partial<LeagueState> = { name: newName, logoUrl: newLogo || `https://ui-avatars.com/api/?name=${newName}&background=random`, commissionerId: user.uid, maxPlayers: newMaxPlayers, joinCode: Math.random().toString(36).substring(2, 8).toUpperCase(), phase: 'setup', currentWeek: 0, teams: [commishTeam], pokemonPool: simplifiedPool, transactions: [], draftConfig: { totalBudget: newTotalBudget, maxPokemon: newMaxPokemon, pickOrder: [], currentPickIndex: 0, direction: 'forward', lastPickTime: 0 }, schedule: [] };
     await addDoc(collection(db, 'leagues'), newLeague);
     setView('list');
   };
-
   const handleJoinLeague = async () => {
      const q = query(collection(db, 'leagues'), where('joinCode', '==', joinCode));
      const snap = await getDocs(q);
      if (snap.empty) { alert("League not found"); return; }
-     
      const lDoc = snap.docs[0];
      const lData = lDoc.data() as LeagueState;
-     
      if (lData.teams.some(t => t.ownerId === user.uid)) { alert("Already joined"); return; }
      if (lData.teams.length >= lData.maxPlayers) { alert("Full"); return; }
-     
-     const newTeam: Team = {
-        id: `team-${Date.now()}`,
-        ownerId: user.uid,
-        name: joinTeamName,
-        coachName: joinCoachName,
-        logoUrl: joinTeamLogo || `https://ui-avatars.com/api/?name=${joinTeamName}&background=random`,
-        roster: [],
-        budgetUsed: 0,
-        wins: 0,
-        losses: 0,
-        differential: 0
-     };
-     
-     // IMPORTANT: Write back teams, ensuring existing teams are minified if they aren't already (though in setup phase they should be empty of pokemon mostly)
-     const minifiedTeams = lData.teams.map(t => ({
-         ...t,
-         roster: t.roster.map(minifyPokemon)
-     }));
-
+     const newTeam: Team = { id: `team-${Date.now()}`, ownerId: user.uid, name: joinTeamName, coachName: joinCoachName, logoUrl: joinTeamLogo || `https://ui-avatars.com/api/?name=${joinTeamName}&background=random`, roster: [], budgetUsed: 0, wins: 0, losses: 0, differential: 0 };
+     const minifiedTeams = lData.teams.map(t => ({ ...t, roster: t.roster.map(minifyPokemon) }));
      await updateDoc(doc(db, 'leagues', lDoc.id), { teams: [...minifiedTeams, newTeam] });
      setView('list');
   };
@@ -1431,162 +1006,27 @@ const DashboardView: React.FC<{
     <div className="max-w-6xl mx-auto p-4 md:p-8">
        {view === 'list' && (
           <div className="space-y-8">
-             <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold text-yellow-400">My Leagues</h1>
-                <div className="flex gap-4">
-                   <button onClick={() => { setCreateStep(0); setView('create'); }} className="bg-yellow-500 text-black font-bold px-4 py-2 rounded shadow hover:bg-yellow-400">+ Create</button>
-                   <button onClick={() => setView('join')} className="bg-gray-700 text-white font-bold px-4 py-2 rounded shadow hover:bg-gray-600">Join with Code</button>
-                </div>
-             </div>
+             <div className="flex justify-between items-center"><h1 className="text-3xl font-bold text-yellow-400">My Leagues</h1><div className="flex gap-4"><button onClick={() => { setCreateStep(0); setView('create'); }} className="bg-yellow-500 text-black font-bold px-4 py-2 rounded shadow hover:bg-yellow-400">+ Create</button><button onClick={() => setView('join')} className="bg-gray-700 text-white font-bold px-4 py-2 rounded shadow hover:bg-gray-600">Join with Code</button></div></div>
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {availableLeagues.map(l => (
                    <div key={l.id} onClick={() => onSelectLeague(l.id!, l.pokemonPool)} className="bg-gray-800 rounded-lg p-6 border border-gray-700 hover:border-yellow-500 cursor-pointer transition shadow-lg group relative overflow-hidden">
-                      <div className="absolute top-0 right-0 p-2">
-                         {l.commissionerId === user.uid && <span className="bg-red-900 text-red-200 text-xs px-2 py-1 rounded">Commish</span>}
-                      </div>
-                      <div className="flex items-center gap-4 mb-4">
-                         <img src={l.logoUrl} className="w-16 h-16 rounded-full bg-black object-cover border-2 border-gray-600 group-hover:border-yellow-500 transition" />
-                         <div>
-                            <h3 className="text-xl font-bold">{l.name}</h3>
-                            <p className="text-sm text-gray-400">{l.teams.length}/{l.maxPlayers} Teams</p>
-                         </div>
-                      </div>
-                      <div className="flex justify-between items-center text-xs text-gray-500 uppercase tracking-widest bg-gray-900/50 p-2 rounded">
-                         <span>{l.phase}</span>
-                         <span>Week {l.currentWeek}</span>
-                      </div>
+                      <div className="absolute top-0 right-0 p-2">{l.commissionerId === user.uid && <span className="bg-red-900 text-red-200 text-xs px-2 py-1 rounded">Commish</span>}</div>
+                      <div className="flex items-center gap-4 mb-4"><img src={l.logoUrl} className="w-16 h-16 rounded-full bg-black object-cover border-2 border-gray-600 group-hover:border-yellow-500 transition" /><div><h3 className="text-xl font-bold">{l.name}</h3><p className="text-sm text-gray-400">{l.teams.length}/{l.maxPlayers} Teams</p></div></div>
+                      <div className="flex justify-between items-center text-xs text-gray-500 uppercase tracking-widest bg-gray-900/50 p-2 rounded"><span>{l.phase}</span><span>Week {l.currentWeek}</span></div>
                    </div>
                 ))}
-                {availableLeagues.length === 0 && (
-                   <div className="col-span-full text-center py-20 text-gray-500 bg-gray-800/30 rounded border-2 border-dashed border-gray-700">
-                      No leagues found. Create or join one to get started!
-                   </div>
-                )}
+                {availableLeagues.length === 0 && (<div className="col-span-full text-center py-20 text-gray-500 bg-gray-800/30 rounded border-2 border-dashed border-gray-700">No leagues found. Create or join one to get started!</div>)}
              </div>
           </div>
        )}
-
        {view === 'create' && (
           <div className="bg-gray-800 rounded-lg p-6 border border-gray-700 shadow-2xl max-w-4xl mx-auto">
-             <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-700">
-                <h2 className="text-2xl font-bold flex items-center gap-2">
-                   <span className="bg-yellow-500 text-black w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">{createStep + 1}</span>
-                   {createStep === 0 ? 'League Details' : createStep === 1 ? 'Commissioner Team' : 'Draft Pool Editor'}
-                </h2>
-                <button onClick={() => setView('list')} className="text-gray-400 hover:text-white">Cancel</button>
-             </div>
-
-             {createStep === 0 && (
-                <div className="space-y-4">
-                   <div>
-                      <label className="block text-sm text-gray-400 mb-1">League Name</label>
-                      <input className="w-full bg-gray-700 p-3 rounded text-white" value={newName} onChange={e => setNewName(e.target.value)} placeholder="e.g. Indigo Plateau 2024" />
-                   </div>
-                   <div>
-                      <label className="block text-sm text-gray-400 mb-1">Logo URL (Optional)</label>
-                      <input className="w-full bg-gray-700 p-3 rounded text-white" value={newLogo} onChange={e => setNewLogo(e.target.value)} placeholder="https://..." />
-                   </div>
-                   <div className="grid grid-cols-3 gap-4">
-                      <div>
-                         <label className="block text-sm text-gray-400 mb-1">Max Players</label>
-                         <input type="number" className="w-full bg-gray-700 p-3 rounded text-white" value={newMaxPlayers} onChange={e => setNewMaxPlayers(parseInt(e.target.value))} />
-                      </div>
-                      <div>
-                         <label className="block text-sm text-gray-400 mb-1">Total Budget</label>
-                         <input type="number" className="w-full bg-gray-700 p-3 rounded text-white" value={newTotalBudget} onChange={e => setNewTotalBudget(parseInt(e.target.value))} />
-                      </div>
-                      <div>
-                         <label className="block text-sm text-gray-400 mb-1">Roster Size</label>
-                         <input type="number" className="w-full bg-gray-700 p-3 rounded text-white" value={newMaxPokemon} onChange={e => setNewMaxPokemon(parseInt(e.target.value))} />
-                      </div>
-                   </div>
-                   <button onClick={() => newName && setCreateStep(1)} className="w-full bg-blue-600 p-3 rounded font-bold mt-4">Next Step</button>
-                </div>
-             )}
-
-             {createStep === 1 && (
-                <div className="space-y-4">
-                   <div>
-                      <label className="block text-sm text-gray-400 mb-1">Your Team Name</label>
-                      <input className="w-full bg-gray-700 p-3 rounded text-white" value={commishTeamName} onChange={e => setCommishTeamName(e.target.value)} placeholder="e.g. Pallet Town Pikachus" />
-                   </div>
-                   <div>
-                      <label className="block text-sm text-gray-400 mb-1">Your Coach Name</label>
-                      <input className="w-full bg-gray-700 p-3 rounded text-white" value={commishCoachName} onChange={e => setCommishCoachName(e.target.value)} placeholder="e.g. Red" />
-                   </div>
-                   <div>
-                      <label className="block text-sm text-gray-400 mb-1">Team Logo URL (Optional)</label>
-                      <input className="w-full bg-gray-700 p-3 rounded text-white" value={commishTeamLogo} onChange={e => setCommishTeamLogo(e.target.value)} placeholder="https://..." />
-                   </div>
-                   <div className="flex gap-4 mt-4">
-                      <button onClick={() => setCreateStep(0)} className="flex-1 bg-gray-700 p-3 rounded font-bold">Back</button>
-                      <button onClick={() => commishTeamName && setCreateStep(2)} className="flex-1 bg-blue-600 p-3 rounded font-bold">Next Step</button>
-                   </div>
-                </div>
-             )}
-
-             {createStep === 2 && (
-                <div className="h-[600px] flex flex-col">
-                   <div className="flex gap-4 mb-4 items-center flex-wrap">
-                      <input className="flex-1 bg-gray-700 p-2 rounded min-w-[200px]" placeholder="Search Pokemon..." value={poolSearch} onChange={e => setPoolSearch(e.target.value)} />
-                      <div className="flex items-center gap-2">
-                         <select onChange={(e) => handlePoolPreset(e.target.value)} className="bg-gray-700 p-2 rounded">
-                            <option value="">Select Preset...</option>
-                            <option value="All">Enable All</option>
-                            <option value="None">Disable All</option>
-                            <option value="Reg H">Reg H (Mock)</option>
-                            <option value="Reg F">Reg F (Mock)</option>
-                         </select>
-                         <select onChange={(e) => setPoolPointFilter(e.target.value)} className="bg-gray-700 p-2 rounded">
-                            <option value="All">All Points</option>
-                            {Array.from({length:20}, (_, i) => 20-i).map(p => <option key={p} value={p}>{p} pts</option>)}
-                         </select>
-                      </div>
-                      <div className="text-sm text-gray-400 self-center whitespace-nowrap">{poolEditorState.filter(p => p.isActive).length} Selected</div>
-                   </div>
-                   <div className="flex-1 overflow-y-auto bg-gray-900 rounded border border-gray-700 p-2">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                         {poolEditorState.filter(p => {
-                             const matchName = p.name.toLowerCase().includes(poolSearch.toLowerCase());
-                             const matchPoint = poolPointFilter === 'All' || p.points === parseInt(poolPointFilter);
-                             return matchName && matchPoint;
-                         }).slice(0, poolLimit).map(p => (
-                            <div key={p.id} className={`flex items-center gap-2 p-2 rounded border ${p.isActive ? 'bg-gray-800 border-gray-600' : 'bg-gray-900 border-gray-800 opacity-50'}`}>
-                               <input type="checkbox" checked={p.isActive} onChange={() => {
-                                    const next = [...poolEditorState];
-                                    const idx = next.findIndex(x => x.id === p.id);
-                                    next[idx].isActive = !next[idx].isActive;
-                                    setPoolEditorState(next);
-                               }} className="w-4 h-4 cursor-pointer" />
-                               <PokemonImage src={p.sprite} alt={p.name} className="w-10 h-10" />
-                               <div className="flex-1 min-w-0">
-                                  <div className="text-sm font-bold truncate">{p.name}</div>
-                                  <div className="text-xs text-gray-500">{p.types.join('/')}</div>
-                               </div>
-                               <input type="number" className="w-12 bg-gray-700 border border-gray-600 rounded px-1 text-center" value={p.points} onChange={(e) => {
-                                    const next = [...poolEditorState];
-                                    const idx = next.findIndex(x => x.id === p.id);
-                                    next[idx].points = parseInt(e.target.value) || 0;
-                                    setPoolEditorState(next);
-                               }} />
-                            </div>
-                         ))}
-                      </div>
-                      {poolEditorState.length > poolLimit && (
-                          <div className="text-center mt-2">
-                              <button onClick={() => setPoolLimit(l => l + 50)} className="bg-gray-700 px-4 py-1 rounded hover:bg-gray-600 text-sm">Load More</button>
-                          </div>
-                      )}
-                   </div>
-                   <div className="flex gap-4 mt-4">
-                      <button onClick={() => setCreateStep(1)} className="flex-1 bg-gray-700 p-3 rounded font-bold">Back</button>
-                      <button onClick={handleCreateLeague} className="flex-1 bg-green-600 p-3 rounded font-bold shadow-lg shadow-green-900/50">Create League</button>
-                   </div>
-                </div>
-             )}
+             <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-700"><h2 className="text-2xl font-bold flex items-center gap-2"><span className="bg-yellow-500 text-black w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold">{createStep + 1}</span>{createStep === 0 ? 'League Details' : createStep === 1 ? 'Commissioner Team' : 'Draft Pool Editor'}</h2><button onClick={() => setView('list')} className="text-gray-400 hover:text-white">Cancel</button></div>
+             {createStep === 0 && (<div className="space-y-4"><div><label className="block text-sm text-gray-400 mb-1">League Name</label><input className="w-full bg-gray-700 p-3 rounded text-white" value={newName} onChange={e => setNewName(e.target.value)} placeholder="e.g. Indigo Plateau 2024" /></div><div><label className="block text-sm text-gray-400 mb-1">Logo URL (Optional)</label><input className="w-full bg-gray-700 p-3 rounded text-white" value={newLogo} onChange={e => setNewLogo(e.target.value)} placeholder="https://..." /></div><div className="grid grid-cols-3 gap-4"><div><label className="block text-sm text-gray-400 mb-1">Max Players</label><input type="number" className="w-full bg-gray-700 p-3 rounded text-white" value={newMaxPlayers} onChange={e => setNewMaxPlayers(parseInt(e.target.value))} /></div><div><label className="block text-sm text-gray-400 mb-1">Total Budget</label><input type="number" className="w-full bg-gray-700 p-3 rounded text-white" value={newTotalBudget} onChange={e => setNewTotalBudget(parseInt(e.target.value))} /></div><div><label className="block text-sm text-gray-400 mb-1">Roster Size</label><input type="number" className="w-full bg-gray-700 p-3 rounded text-white" value={newMaxPokemon} onChange={e => setNewMaxPokemon(parseInt(e.target.value))} /></div></div><button onClick={() => newName && setCreateStep(1)} className="w-full bg-blue-600 p-3 rounded font-bold mt-4">Next Step</button></div>)}
+             {createStep === 1 && (<div className="space-y-4"><div><label className="block text-sm text-gray-400 mb-1">Your Team Name</label><input className="w-full bg-gray-700 p-3 rounded text-white" value={commishTeamName} onChange={e => setCommishTeamName(e.target.value)} placeholder="e.g. Pallet Town Pikachus" /></div><div><label className="block text-sm text-gray-400 mb-1">Your Coach Name</label><input className="w-full bg-gray-700 p-3 rounded text-white" value={commishCoachName} onChange={e => setCommishCoachName(e.target.value)} placeholder="e.g. Red" /></div><div><label className="block text-sm text-gray-400 mb-1">Team Logo URL (Optional)</label><input className="w-full bg-gray-700 p-3 rounded text-white" value={commishTeamLogo} onChange={e => setCommishTeamLogo(e.target.value)} placeholder="https://..." /></div><div className="flex gap-4 mt-4"><button onClick={() => setCreateStep(0)} className="flex-1 bg-gray-700 p-3 rounded font-bold">Back</button><button onClick={() => commishTeamName && setCreateStep(2)} className="flex-1 bg-blue-600 p-3 rounded font-bold">Next Step</button></div></div>)}
+             {createStep === 2 && (<div className="h-[600px] flex flex-col"><div className="flex gap-4 mb-4 items-center flex-wrap"><input className="flex-1 bg-gray-700 p-2 rounded min-w-[200px]" placeholder="Search Pokemon..." value={poolSearch} onChange={e => setPoolSearch(e.target.value)} /><div className="flex items-center gap-2"><select onChange={(e) => handlePoolPreset(e.target.value)} className="bg-gray-700 p-2 rounded"><option value="">Select Preset...</option><option value="All">Enable All</option><option value="None">Disable All</option><option value="Reg H">Reg H (Mock)</option><option value="Reg F">Reg F (Mock)</option></select><select onChange={(e) => setPoolPointFilter(e.target.value)} className="bg-gray-700 p-2 rounded"><option value="All">All Points</option>{Array.from({length:20}, (_, i) => 20-i).map(p => <option key={p} value={p}>{p} pts</option>)}</select></div><div className="text-sm text-gray-400 self-center whitespace-nowrap">{poolEditorState.filter(p => p.isActive).length} Selected</div></div><div className="flex-1 overflow-y-auto bg-gray-900 rounded border border-gray-700 p-2"><div className="grid grid-cols-1 md:grid-cols-2 gap-2">{poolEditorState.filter(p => { const matchName = p.name.toLowerCase().includes(poolSearch.toLowerCase()); const matchPoint = poolPointFilter === 'All' || p.points === parseInt(poolPointFilter); return matchName && matchPoint; }).slice(0, poolLimit).map(p => (<div key={p.id} className={`flex items-center gap-2 p-2 rounded border ${p.isActive ? 'bg-gray-800 border-gray-600' : 'bg-gray-900 border-gray-800 opacity-50'}`}><input type="checkbox" checked={p.isActive} onChange={() => { const next = [...poolEditorState]; const idx = next.findIndex(x => x.id === p.id); next[idx].isActive = !next[idx].isActive; setPoolEditorState(next); }} className="w-4 h-4 cursor-pointer" /><PokemonImage src={p.sprite} alt={p.name} className="w-10 h-10" /><div className="flex-1 min-w-0"><div className="text-sm font-bold truncate">{p.name}</div><div className="text-xs text-gray-500">{p.types.join('/')}</div></div><input type="number" className="w-12 bg-gray-700 border border-gray-600 rounded px-1 text-center" value={p.points} onChange={(e) => { const next = [...poolEditorState]; const idx = next.findIndex(x => x.id === p.id); next[idx].points = parseInt(e.target.value) || 0; setPoolEditorState(next); }} /></div>))}</div>{poolEditorState.length > poolLimit && (<div className="text-center mt-2"><button onClick={() => setPoolLimit(l => l + 50)} className="bg-gray-700 px-4 py-1 rounded hover:bg-gray-600 text-sm">Load More</button></div>)}</div><div className="flex gap-4 mt-4"><button onClick={() => setCreateStep(1)} className="flex-1 bg-gray-700 p-3 rounded font-bold">Back</button><button onClick={handleCreateLeague} className="flex-1 bg-green-600 p-3 rounded font-bold shadow-lg shadow-green-900/50">Create League</button></div></div>)}
           </div>
        )}
-
        {view === 'join' && (
           <div className="max-w-md mx-auto bg-gray-800 p-8 rounded-lg border border-gray-700 shadow-xl">
              <h2 className="text-2xl font-bold mb-6">Join a League</h2>
@@ -1595,10 +1035,7 @@ const DashboardView: React.FC<{
                 <input className="w-full bg-gray-700 p-3 rounded" placeholder="Your Team Name" value={joinTeamName} onChange={e => setJoinTeamName(e.target.value)} />
                 <input className="w-full bg-gray-700 p-3 rounded" placeholder="Your Coach Name" value={joinCoachName} onChange={e => setJoinCoachName(e.target.value)} />
                 <input className="w-full bg-gray-700 p-3 rounded" placeholder="Team Logo URL (Optional)" value={joinTeamLogo} onChange={e => setJoinTeamLogo(e.target.value)} />
-                <div className="flex gap-4 mt-6">
-                   <button onClick={() => setView('list')} className="flex-1 bg-gray-700 p-3 rounded">Cancel</button>
-                   <button onClick={handleJoinLeague} className="flex-1 bg-blue-600 p-3 rounded font-bold">Join</button>
-                </div>
+                <div className="flex gap-4 mt-6"><button onClick={() => setView('list')} className="flex-1 bg-gray-700 p-3 rounded">Cancel</button><button onClick={handleJoinLeague} className="flex-1 bg-blue-600 p-3 rounded font-bold">Join</button></div>
              </div>
           </div>
        )}
@@ -1614,8 +1051,6 @@ const SeasonView: React.FC<{
 }> = ({ league, user, activeTab, onTabChange }) => {
   const [viewWeek, setViewWeek] = useState(league.currentWeek);
   const [reportingMatch, setReportingMatch] = useState<Matchup | null>(null);
-  
-  // Analysis State
   const [analysisTeamA, setAnalysisTeamA] = useState(league.teams[0]?.id);
   const [analysisTeamB, setAnalysisTeamB] = useState(league.teams[1]?.id);
   const [draftSummaryTeam, setDraftSummaryTeam] = useState('A');
@@ -1623,101 +1058,136 @@ const SeasonView: React.FC<{
   const [coverageTeam, setCoverageTeam] = useState('A');
   const [utilityTeam, setUtilityTeam] = useState('A');
   const [teraTeam, setTeraTeam] = useState('A');
-
-  // My Team State
   const [editingTeam, setEditingTeam] = useState(false);
   const [editName, setEditName] = useState('');
   const [editLogo, setEditLogo] = useState('');
   const [faFilterPoint, setFaFilterPoint] = useState<string>('All');
   const [faSearch, setFaSearch] = useState('');
   const [faLimit, setFaLimit] = useState(20);
+  
+  // Custom Confirmation Modal State
+  const [confirmationData, setConfirmationData] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
   const isCommish = league.commissionerId === user.uid;
 
   useEffect(() => { setViewWeek(league.currentWeek) }, [league.currentWeek]);
 
   const handleAdvanceWeek = async () => {
-    const lastRegularMatch = league.schedule.filter(m => !m.isPlayoff).sort((a,b) => b.week - a.week)[0];
-    const regularWeeks = lastRegularMatch ? lastRegularMatch.week : 0;
-    
-    if (league.phase === 'playoffs') {
-       const semiFinals = league.schedule.filter(m => m.playoffRound === 'Semi-Final');
-       const finals = league.schedule.filter(m => m.playoffRound === 'Final');
-       
-       if (semiFinals.length > 0 && finals.length === 0) {
-          if (!semiFinals.every(m => m.completed)) { alert("Finish Semi-Finals first."); return; }
-          const w1Id = league.schedule.find(m => m.id === semiFinals[0].id)?.winnerId;
-          const w2Id = league.schedule.find(m => m.id === semiFinals[1].id)?.winnerId;
-
-          if (!w1Id || !w2Id) { alert("Error identifying winners."); return; }
-
-          const finalMatch: Matchup = {
-             id: `final-${Date.now()}`,
-             week: league.currentWeek + 1,
-             teamAId: w1Id,
-             teamBId: w2Id,
-             completed: false,
-             isPlayoff: true,
-             playoffRound: 'Final'
-          };
-          await updateDoc(doc(db, 'leagues', league.id!), {
-             currentWeek: league.currentWeek + 1,
-             schedule: [...league.schedule, finalMatch]
-          });
-       } else if (finals.length > 0 && finals[0].completed) {
-          if (!confirm("End Season and Declare Champion?")) return;
-          const champ = league.teams.find(t => t.id === finals[0].winnerId);
-          await updateDoc(doc(db, 'leagues', league.id!), {
-             phase: 'completed',
-             championId: champ?.id
-          });
-          alert(`Season Over! Champion: ${champ?.name}`);
-       }
-       return;
+    if (!league.id) {
+        alert("Error: League ID missing");
+        return;
     }
 
-    if (league.currentWeek >= regularWeeks && league.phase === 'season') {
-       if (!confirm("End Regular Season and Start Playoffs?")) return;
-       const sortedTeams = [...league.teams].sort((a,b) => {
-          if (a.wins !== b.wins) return b.wins - a.wins;
-          if (a.differential !== b.differential) return b.differential - a.differential;
-          return 0; 
-       });
-       
-       const nextWeek = league.currentWeek + 1;
+    try {
+        const regularSeasonMatches = league.schedule.filter(m => !m.isPlayoff);
+        const lastRegularWeek = regularSeasonMatches.length > 0 
+            ? Math.max(...regularSeasonMatches.map(m => m.week)) 
+            : 0;
+            
+        // 1. Playoff Phase Logic
+        if (league.phase === 'playoffs') {
+           const semiFinals = league.schedule.filter(m => m.playoffRound === 'Semi-Final');
+           const finals = league.schedule.filter(m => m.playoffRound === 'Final');
+           
+           if (semiFinals.length > 0 && finals.length === 0) {
+              if (!semiFinals.every(m => m.completed)) { alert("Finish Semi-Finals first."); return; }
+              const w1Id = league.schedule.find(m => m.id === semiFinals[0].id)?.winnerId;
+              const w2Id = league.schedule.find(m => m.id === semiFinals[1].id)?.winnerId;
 
-       if (sortedTeams.length < 4) {
-           const finalMatch: Matchup = { 
-               id: `final-${Date.now()}`, 
-               week: nextWeek, 
-               teamAId: sortedTeams[0].id, 
-               teamBId: sortedTeams[1].id, 
-               completed: false, 
-               isPlayoff: true, 
-               playoffRound: 'Final'
-           };
-           await updateDoc(doc(db, 'leagues', league.id!), {
-               phase: 'playoffs',
-               currentWeek: nextWeek,
-               schedule: [...league.schedule, finalMatch]
-           });
-       } else {
-           const top4 = sortedTeams.slice(0, 4);
-           const semiFinals: Matchup[] = [
-             { id: `sf-1-${Date.now()}`, week: nextWeek, teamAId: top4[0].id, teamBId: top4[3].id, completed: false, isPlayoff: true, playoffRound: 'Semi-Final' },
-             { id: `sf-2-${Date.now()}`, week: nextWeek, teamAId: top4[1].id, teamBId: top4[2].id, completed: false, isPlayoff: true, playoffRound: 'Semi-Final' }
-           ];
-           await updateDoc(doc(db, 'leagues', league.id!), {
-              phase: 'playoffs',
-              currentWeek: nextWeek,
-              schedule: [...league.schedule, ...semiFinals]
-           });
-       }
-    } else {
-       if (!confirm("Advance to next week?")) return;
-       await updateDoc(doc(db, 'leagues', league.id!), {
-          currentWeek: league.currentWeek + 1
-       });
+              if (!w1Id || !w2Id) { alert("Error identifying winners."); return; }
+
+              const finalMatch: Matchup = {
+                 id: `final-${Date.now()}`,
+                 week: league.currentWeek + 1,
+                 teamAId: w1Id,
+                 teamBId: w2Id,
+                 completed: false,
+                 isPlayoff: true,
+                 playoffRound: 'Final'
+              };
+              
+              setConfirmationData({
+                  message: "All Semi-Finals complete. Advance to Championship Week?",
+                  onConfirm: async () => {
+                      await updateDoc(doc(db, 'leagues', league.id!), {
+                         currentWeek: league.currentWeek + 1,
+                         schedule: [...league.schedule, finalMatch]
+                      });
+                  }
+              });
+           } else if (finals.length > 0 && finals[0].completed) {
+              const champ = league.teams.find(t => t.id === finals[0].winnerId);
+              
+              setConfirmationData({
+                  message: `Declare ${champ?.name} as the Champion and end the season?`,
+                  onConfirm: async () => {
+                      await updateDoc(doc(db, 'leagues', league.id!), {
+                         phase: 'completed',
+                         championId: champ?.id
+                      });
+                  }
+              });
+           }
+           return;
+        }
+
+        // 2. Regular Season Logic
+        if (league.phase === 'season') {
+            if (league.currentWeek >= lastRegularWeek) {
+                const sortedTeams = [...league.teams].sort((a,b) => {
+                  if (a.wins !== b.wins) return b.wins - a.wins;
+                  if (a.differential !== b.differential) return b.differential - a.differential;
+                  return 0; 
+                });
+                
+                const nextWeek = league.currentWeek + 1;
+                let updates: any = {
+                    phase: 'playoffs',
+                    currentWeek: nextWeek
+                };
+
+                if (sortedTeams.length < 4) {
+                    const finalMatch: Matchup = { 
+                        id: `final-${Date.now()}`, 
+                        week: nextWeek, 
+                        teamAId: sortedTeams[0].id, 
+                        teamBId: sortedTeams[1].id, 
+                        completed: false, 
+                        isPlayoff: true, 
+                        playoffRound: 'Final'
+                    };
+                    updates.schedule = [...league.schedule, finalMatch];
+                } else {
+                    const top4 = sortedTeams.slice(0, 4);
+                    const semiFinals: Matchup[] = [
+                      { id: `sf-1-${Date.now()}`, week: nextWeek, teamAId: top4[0].id, teamBId: top4[3].id, completed: false, isPlayoff: true, playoffRound: 'Semi-Final' },
+                      { id: `sf-2-${Date.now()}`, week: nextWeek, teamAId: top4[1].id, teamBId: top4[2].id, completed: false, isPlayoff: true, playoffRound: 'Semi-Final' }
+                    ];
+                    updates.schedule = [...league.schedule, ...semiFinals];
+                }
+
+                setConfirmationData({
+                    message: "Regular Season concluded. Proceed to Playoffs?",
+                    onConfirm: async () => {
+                        await updateDoc(doc(db, 'leagues', league.id!), updates);
+                    }
+                });
+
+            } else {
+                // Standard Advance
+                setConfirmationData({
+                    message: `Advance schedule to Week ${league.currentWeek + 1}?`,
+                    onConfirm: async () => {
+                        await updateDoc(doc(db, 'leagues', league.id!), {
+                            currentWeek: league.currentWeek + 1
+                        });
+                    }
+                });
+            }
+        }
+    } catch(err: any) {
+        console.error(err);
+        alert("Failed to advance: " + err.message);
     }
   };
 
@@ -1798,7 +1268,7 @@ const SeasonView: React.FC<{
         <div className="flex justify-between items-center mb-6 bg-gray-800 p-4 rounded border border-gray-700 shadow-md">
            <div className="flex items-center gap-4">
               <button disabled={viewWeek <= 1} onClick={() => setViewWeek(v => v-1)} className="p-2 hover:bg-gray-700 rounded disabled:opacity-50 transition">←</button>
-              <h2 className="text-xl font-bold text-yellow-400">
+              <h2 className="text-xl font-bold text-yellow-400 w-64 text-center">
                  {league.phase === 'playoffs' && viewWeek > (league.schedule.filter(m => !m.isPlayoff).sort((a,b)=>b.week-a.week)[0]?.week || 99) ? 'Playoffs' : `Week ${viewWeek}`}
               </h2>
               <button disabled={viewWeek >= (league.schedule[league.schedule.length-1]?.week || 99)} onClick={() => setViewWeek(v => v+1)} className="p-2 hover:bg-gray-700 rounded disabled:opacity-50 transition">→</button>
@@ -1845,10 +1315,9 @@ const SeasonView: React.FC<{
   );
 
   const renderPlayoffs = () => {
+    // ... (Logic unchanged) ...
     const semiFinals = league.schedule.filter(m => m.playoffRound === 'Semi-Final');
     const finals = league.schedule.filter(m => m.playoffRound === 'Final');
-
-    // Only for > 2 teams do we have semis. If 2 teams, direct to finals.
     const hasSemis = league.teams.length >= 4;
 
     return (
@@ -1953,7 +1422,7 @@ const SeasonView: React.FC<{
                 {league.teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
              </select>
           </div>
-
+          {/* ... existing analysis implementation ... */}
           <div className="bg-gray-900/50 p-4 rounded border border-gray-800">
              <div className="flex justify-between items-center mb-4">
                 <h3 className="text-xl font-bold text-yellow-400">Draft Summary</h3>
@@ -2016,278 +1485,38 @@ const SeasonView: React.FC<{
        </div>
     );
   };
-
+  
   const renderMyTeam = () => {
     const myTeam = league.teams.find(t => t.ownerId === user.uid);
     if(!myTeam) return <div className="p-8 text-center text-gray-500">You do not own a team in this league.</div>;
-    
     const draftedIds = new Set<number>();
     league.teams.forEach(t => t.roster.forEach(p => draftedIds.add(p.id)));
-    
-    const freeAgents = (league.pokemonPool || [])
-        .filter(p => !draftedIds.has(p.id))
-        .filter(p => faFilterPoint === 'All' || p.points === parseInt(faFilterPoint))
-        .filter(p => p.name.toLowerCase().includes(faSearch.toLowerCase()))
-        .sort((a,b) => b.points - a.points);
-
+    const freeAgents = (league.pokemonPool || []).filter(p => !draftedIds.has(p.id)).filter(p => faFilterPoint === 'All' || p.points === parseInt(faFilterPoint)).filter(p => p.name.toLowerCase().includes(faSearch.toLowerCase())).sort((a,b) => b.points - a.points);
     return (
        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="space-y-4">
              <div className="bg-gray-800 p-4 rounded border-t-4 border-blue-500 shadow-lg">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex-1">
-                    {editingTeam ? (
-                       <div className="space-y-2 mr-4">
-                          <input className="bg-gray-700 p-2 rounded w-full border border-gray-600" value={editName} onChange={e => setEditName(e.target.value)} placeholder="Team Name"/>
-                          <input className="bg-gray-700 p-2 rounded w-full border border-gray-600" value={editLogo} onChange={e => setEditLogo(e.target.value)} placeholder="Logo URL"/>
-                          <div className="flex gap-2 text-xs mt-2">
-                             <button onClick={handleUpdateTeam} className="bg-green-600 px-3 py-1 rounded font-bold hover:bg-green-500">Save Changes</button>
-                             <button onClick={() => setEditingTeam(false)} className="bg-gray-600 px-3 py-1 rounded font-bold hover:bg-gray-500">Cancel</button>
-                          </div>
-                       </div>
-                    ) : (
-                       <div className="flex items-center gap-4">
-                         <img src={myTeam.logoUrl} className="w-16 h-16 rounded-full bg-black border-2 border-gray-600 object-cover" />
-                         <div>
-                            <h3 className="text-2xl font-bold mb-1">{myTeam.name}</h3>
-                            <div className="text-sm text-gray-400">Coach: {myTeam.coachName}</div>
-                         </div>
-                       </div>
-                    )}
-                  </div>
-                  {!editingTeam && <button onClick={() => { setEditingTeam(true); setEditName(myTeam.name); setEditLogo(myTeam.logoUrl); }} className="text-gray-400 hover:text-white p-2 bg-gray-700 rounded-full"><PencilIcon /></button>}
-                </div>
-                
-                <div className="text-sm mb-4 bg-gray-900 p-3 rounded flex justify-between font-mono">
-                   <span>Budget: {myTeam.budgetUsed}/{league.draftConfig.totalBudget}</span>
-                   <span>Roster: {myTeam.roster.length}/{league.draftConfig.maxPokemon}</span>
-                </div>
-
-                <div className="space-y-2">
-                   {myTeam.roster.map(p => (
-                      <div key={p.id} className="bg-gray-700/50 p-3 rounded flex flex-col gap-2 border border-gray-700 hover:border-gray-500 transition">
-                         <div className="flex justify-between items-center">
-                            <div className="flex items-center gap-3">
-                               <PokemonImage src={p.sprite} alt={p.name} className="w-12 h-12" />
-                               <div>
-                                  <div className="font-bold text-base">{p.name}</div>
-                                  <div className="flex gap-1 mt-1">{p.types.map(t => <TypeBadge key={t} type={t} size="sm" />)}</div>
-                               </div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <span className="font-bold text-yellow-500 text-lg">{p.points}</span>
-                                {league.currentWeek <= 3 && <button onClick={() => handleTransaction('drop', p)} className="bg-red-900/50 hover:bg-red-800 text-red-200 text-xs px-3 py-1 rounded border border-red-800 font-bold uppercase">Drop</button>}
-                            </div>
-                         </div>
-                         <div className="flex gap-2 items-center text-xs">
-                            <span className="text-gray-400">Tera Type:</span>
-                            <select 
-                                value={p.teraType || ''} 
-                                onChange={(e) => handleUpdateTera(p.id, e.target.value)}
-                                className="bg-gray-800 text-white rounded p-1 border border-gray-600"
-                            >
-                                <option value="">None</option>
-                                {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                            </select>
-                         </div>
-                         <div className="grid grid-cols-6 gap-1 text-[10px] text-center bg-gray-900/50 p-2 rounded">
-                             {getStatValues(p).map((v, i) => (
-                               <div key={i}><div className="text-gray-500 font-bold">{STAT_LABELS[i]}</div><div className="font-mono text-gray-300">{v}</div></div>
-                             ))}
-                         </div>
-                         <div className="text-xs text-gray-400 italic px-1">Abilities: {p.abilities?.join(', ')}</div>
-                      </div>
-                   ))}
-                </div>
+                <div className="flex justify-between items-start mb-4"><div className="flex-1">{editingTeam ? (<div className="space-y-2 mr-4"><input className="bg-gray-700 p-2 rounded w-full border border-gray-600" value={editName} onChange={e => setEditName(e.target.value)} placeholder="Team Name"/><input className="bg-gray-700 p-2 rounded w-full border border-gray-600" value={editLogo} onChange={e => setEditLogo(e.target.value)} placeholder="Logo URL"/><div className="flex gap-2 text-xs mt-2"><button onClick={handleUpdateTeam} className="bg-green-600 px-3 py-1 rounded font-bold hover:bg-green-500">Save Changes</button><button onClick={() => setEditingTeam(false)} className="bg-gray-600 px-3 py-1 rounded font-bold hover:bg-gray-500">Cancel</button></div></div>) : (<div className="flex items-center gap-4"><img src={myTeam.logoUrl} className="w-16 h-16 rounded-full bg-black border-2 border-gray-600 object-cover" /><div><h3 className="text-2xl font-bold mb-1">{myTeam.name}</h3><div className="text-sm text-gray-400">Coach: {myTeam.coachName}</div></div></div>)}</div>{!editingTeam && <button onClick={() => { setEditingTeam(true); setEditName(myTeam.name); setEditLogo(myTeam.logoUrl); }} className="text-gray-400 hover:text-white p-2 bg-gray-700 rounded-full"><PencilIcon /></button>}</div>
+                <div className="text-sm mb-4 bg-gray-900 p-3 rounded flex justify-between font-mono"><span>Budget: {myTeam.budgetUsed}/{league.draftConfig.totalBudget}</span><span>Roster: {myTeam.roster.length}/{league.draftConfig.maxPokemon}</span></div>
+                <div className="space-y-2">{myTeam.roster.map(p => (<div key={p.id} className="bg-gray-700/50 p-3 rounded flex flex-col gap-2 border border-gray-700 hover:border-gray-500 transition"><div className="flex justify-between items-center"><div className="flex items-center gap-3"><PokemonImage src={p.sprite} alt={p.name} className="w-12 h-12" /><div><div className="font-bold text-base">{p.name}</div><div className="flex gap-1 mt-1">{p.types.map(t => <TypeBadge key={t} type={t} size="sm" />)}</div></div></div><div className="flex items-center gap-3"><span className="font-bold text-yellow-500 text-lg">{p.points}</span>{league.currentWeek <= 3 && <button onClick={() => handleTransaction('drop', p)} className="bg-red-900/50 hover:bg-red-800 text-red-200 text-xs px-3 py-1 rounded border border-red-800 font-bold uppercase">Drop</button>}</div></div><div className="flex gap-2 items-center text-xs"><span className="text-gray-400">Tera Type:</span><select value={p.teraType || ''} onChange={(e) => handleUpdateTera(p.id, e.target.value)} className="bg-gray-800 text-white rounded p-1 border border-gray-600"><option value="">None</option>{TYPES.map(t => <option key={t} value={t}>{t}</option>)}</select></div><div className="grid grid-cols-6 gap-1 text-[10px] text-center bg-gray-900/50 p-2 rounded">{getStatValues(p).map((v, i) => (<div key={i}><div className="text-gray-500 font-bold">{STAT_LABELS[i]}</div><div className="font-mono text-gray-300">{v}</div></div>))}</div><div className="text-xs text-gray-400 italic px-1">Abilities: {p.abilities?.join(', ')}</div></div>))}</div>
              </div>
           </div>
-
           <div className="space-y-4">
              <h3 className="text-xl font-bold">Free Agency (Week {league.currentWeek}/3)</h3>
-             <div className="flex gap-2 mb-2">
-                <input placeholder="Search..." value={faSearch} onChange={e => setFaSearch(e.target.value)} className="flex-1 bg-gray-700 rounded p-2 text-sm border border-gray-600" />
-                <select value={faFilterPoint} onChange={e => setFaFilterPoint(e.target.value)} className="bg-gray-700 rounded p-2 text-sm border border-gray-600">
-                    <option value="All">All Points</option>
-                    {Array.from({length:20}, (_,i)=>20-i).map(p => <option key={p} value={p}>{p} pts</option>)}
-                </select>
-             </div>
+             <div className="flex gap-2 mb-2"><input placeholder="Search..." value={faSearch} onChange={e => setFaSearch(e.target.value)} className="flex-1 bg-gray-700 rounded p-2 text-sm border border-gray-600" /><select value={faFilterPoint} onChange={e => setFaFilterPoint(e.target.value)} className="bg-gray-700 rounded p-2 text-sm border border-gray-600"><option value="All">All Points</option>{Array.from({length:20}, (_,i)=>20-i).map(p => <option key={p} value={p}>{p} pts</option>)}</select></div>
              {league.currentWeek > 3 && <p className="text-red-400">Transactions are now locked for the season.</p>}
-             <div className="bg-gray-800 p-4 rounded h-[800px] overflow-y-auto border border-gray-700">
-                {freeAgents.slice(0, faLimit).map(p => (
-                   <div key={p.id} className="flex flex-col p-3 border-b border-gray-700 hover:bg-gray-700/50 transition gap-2">
-                      <div className="flex justify-between items-center">
-                          <div className="flex items-center gap-3">
-                             <PokemonImage src={p.sprite} alt={p.name} className="w-10 h-10" />
-                             <div>
-                                <div className="font-bold text-sm">{p.name}</div>
-                                <div className="flex gap-1 mt-1">{p.types.map(t => <TypeBadge key={t} type={t} size="sm" />)}</div>
-                             </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                              <span className="font-bold text-yellow-500 text-lg">{p.points}</span>
-                              {league.currentWeek <= 3 && <button onClick={() => handleTransaction('add', p)} className="bg-green-700 hover:bg-green-600 text-white text-xs px-3 py-1 rounded font-bold uppercase shadow">Add</button>}
-                          </div>
-                      </div>
-                      <div className="grid grid-cols-6 gap-1 text-[10px] text-center bg-black/20 p-1 rounded">
-                          {getStatValues(p).map((v, i) => (
-                             <div key={i}><span className="text-gray-500">{STAT_LABELS[i]}:</span> {v}</div>
-                          ))}
-                      </div>
-                      <div className="text-xs text-gray-400 italic px-1">Abilities: {p.abilities?.join(', ')}</div>
-                   </div>
-                ))}
-                {freeAgents.length > faLimit && (
-                    <button onClick={() => setFaLimit(l => l + 20)} className="w-full py-2 bg-gray-700 hover:bg-gray-600 text-center rounded mt-2">Load More</button>
-                )}
-             </div>
+             <div className="bg-gray-800 p-4 rounded h-[800px] overflow-y-auto border border-gray-700">{freeAgents.slice(0, faLimit).map(p => (<div key={p.id} className="flex flex-col p-3 border-b border-gray-700 hover:bg-gray-700/50 transition gap-2"><div className="flex justify-between items-center"><div className="flex items-center gap-3"><PokemonImage src={p.sprite} alt={p.name} className="w-10 h-10" /><div><div className="font-bold text-sm">{p.name}</div><div className="flex gap-1 mt-1">{p.types.map(t => <TypeBadge key={t} type={t} size="sm" />)}</div></div></div><div className="flex items-center gap-3"><span className="font-bold text-yellow-500 text-lg">{p.points}</span>{league.currentWeek <= 3 && <button onClick={() => handleTransaction('add', p)} className="bg-green-700 hover:bg-green-600 text-white text-xs px-3 py-1 rounded font-bold uppercase shadow">Add</button>}</div></div><div className="grid grid-cols-6 gap-1 text-[10px] text-center bg-black/20 p-1 rounded">{getStatValues(p).map((v, i) => (<div key={i}><span className="text-gray-500">{STAT_LABELS[i]}:</span> {v}</div>))}</div><div className="text-xs text-gray-400 italic px-1">Abilities: {p.abilities?.join(', ')}</div></div>))}{freeAgents.length > faLimit && (<button onClick={() => setFaLimit(l => l + 20)} className="w-full py-2 bg-gray-700 hover:bg-gray-600 text-center rounded mt-2">Load More</button>)}</div>
           </div>
        </div>
     );
   };
-  
-  const renderStandings = () => {
-      const sorted = [...league.teams].sort((a,b) => {
-          if (a.wins !== b.wins) return b.wins - a.wins;
-          if (a.differential !== b.differential) return b.differential - a.differential;
-          return 0;
-      });
-      return (
-        <div className="bg-gray-800 rounded border border-gray-700 overflow-hidden">
-            <table className="w-full text-left">
-                <thead className="bg-gray-900 text-gray-400 text-xs uppercase">
-                    <tr>
-                        <th className="p-3">Rank</th>
-                        <th className="p-3">Team</th>
-                        <th className="p-3 text-center">W</th>
-                        <th className="p-3 text-center">L</th>
-                        <th className="p-3 text-center">Diff</th>
-                        <th className="p-3 text-center">Coach</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {sorted.map((t, i) => (
-                        <tr key={t.id} className="border-b border-gray-700 hover:bg-white/5">
-                            <td className="p-3 font-mono text-gray-500">{i+1}</td>
-                            <td className="p-3 flex items-center gap-3">
-                                <img src={t.logoUrl} className="w-8 h-8 rounded-full bg-black border border-gray-600 object-cover"/>
-                                <span className="font-bold">{t.name}</span>
-                            </td>
-                            <td className="p-3 text-center font-bold text-green-400">{t.wins}</td>
-                            <td className="p-3 text-center font-bold text-red-400">{t.losses}</td>
-                            <td className="p-3 text-center font-mono">{t.differential > 0 ? '+' : ''}{t.differential}</td>
-                            <td className="p-3 text-center text-sm text-gray-400">{t.coachName}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-      );
-  };
-
-  const renderMVP = () => {
-      const killMap: Record<number, number> = {};
-      const deathMap: Record<number, number> = {};
-      
-      league.schedule.forEach(m => {
-          if(m.teamADetails) {
-             Object.entries(m.teamADetails.kills).forEach(([id, k]) => killMap[Number(id)] = (killMap[Number(id)] || 0) + (k as number));
-             Object.entries(m.teamADetails.deaths).forEach(([id, d]) => deathMap[Number(id)] = (deathMap[Number(id)] || 0) + (d as number));
-          }
-          if(m.teamBDetails) {
-             Object.entries(m.teamBDetails.kills).forEach(([id, k]) => killMap[Number(id)] = (killMap[Number(id)] || 0) + (k as number));
-             Object.entries(m.teamBDetails.deaths).forEach(([id, d]) => deathMap[Number(id)] = (deathMap[Number(id)] || 0) + (d as number));
-          }
-      });
-      
-      const allMons: any[] = [];
-      league.teams.forEach(t => t.roster.forEach(p => {
-          if (killMap[p.id] || deathMap[p.id]) {
-              allMons.push({ ...p, kills: killMap[p.id] || 0, deaths: deathMap[p.id] || 0, team: t });
-          }
-      }));
-      
-      allMons.sort((a,b) => b.kills - a.kills);
-      
-      return (
-          <div className="bg-gray-800 rounded border border-gray-700 overflow-hidden">
-             <table className="w-full text-left">
-                <thead className="bg-gray-900 text-gray-400 text-xs uppercase">
-                    <tr>
-                        <th className="p-3">Rank</th>
-                        <th className="p-3">Pokemon</th>
-                        <th className="p-3">Team</th>
-                        <th className="p-3 text-center">Kills</th>
-                        <th className="p-3 text-center">Deaths</th>
-                        <th className="p-3 text-center">K/D</th>
-                    </tr>
-                </thead>
-                <tbody>
-                   {allMons.map((p, i) => (
-                      <tr key={p.id} className="border-b border-gray-700 hover:bg-white/5">
-                         <td className="p-3 font-mono text-gray-500">{i+1}</td>
-                         <td className="p-3 flex items-center gap-2">
-                             <PokemonImage src={p.sprite} alt={p.name} className="w-8 h-8" />
-                             <span className="font-bold">{p.name}</span>
-                         </td>
-                         <td className="p-3 text-sm text-gray-400">{p.team.name}</td>
-                         <td className="p-3 text-center font-bold text-green-400">{p.kills}</td>
-                         <td className="p-3 text-center font-bold text-red-400">{p.deaths}</td>
-                         <td className="p-3 text-center font-mono">{(p.kills / (p.deaths || 1)).toFixed(2)}</td>
-                      </tr>
-                   ))}
-                </tbody>
-             </table>
-          </div>
-      )
-  };
-
-  const renderTransactions = () => (
-     <div className="bg-gray-800 p-4 rounded border border-gray-700">
-        <h3 className="text-xl font-bold mb-4">Transaction History</h3>
-        <div className="space-y-2">
-           {league.transactions.map(t => (
-               <div key={t.id} className="flex items-center gap-3 text-sm p-3 bg-gray-700/30 rounded">
-                  <span className="text-gray-400 w-24">{new Date(t.date).toLocaleDateString()}</span>
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${t.type === 'ADD' ? 'bg-green-900 text-green-200' : t.type === 'DROP' ? 'bg-red-900 text-red-200' : 'bg-blue-900 text-blue-200'}`}>{t.type}</span>
-                  <div className="flex-1">
-                      {t.type === 'MATCH_REPORT' ? (
-                          <span className="text-gray-300 font-bold">{t.pokemonName}</span>
-                      ) : (
-                          <>
-                            <span className="font-bold text-gray-300">{t.teamName}</span> {t.type === 'ADD' ? 'added' : 'dropped'} <span className="font-bold text-yellow-500">{t.pokemonName}</span>
-                          </>
-                      )}
-                  </div>
-               </div>
-           ))}
-        </div>
-     </div>
-  );
+  const renderStandings = () => { const sorted = [...league.teams].sort((a,b) => { if (a.wins !== b.wins) return b.wins - a.wins; if (a.differential !== b.differential) return b.differential - a.differential; return 0; }); return (<div className="bg-gray-800 rounded border border-gray-700 overflow-hidden"><table className="w-full text-left"><thead className="bg-gray-900 text-gray-400 text-xs uppercase"><tr><th className="p-3">Rank</th><th className="p-3">Team</th><th className="p-3 text-center">W</th><th className="p-3 text-center">L</th><th className="p-3 text-center">Diff</th><th className="p-3 text-center">Coach</th></tr></thead><tbody>{sorted.map((t, i) => (<tr key={t.id} className="border-b border-gray-700 hover:bg-white/5"><td className="p-3 font-mono text-gray-500">{i+1}</td><td className="p-3 flex items-center gap-3"><img src={t.logoUrl} className="w-8 h-8 rounded-full bg-black border border-gray-600 object-cover"/><span className="font-bold">{t.name}</span></td><td className="p-3 text-center font-bold text-green-400">{t.wins}</td><td className="p-3 text-center font-bold text-red-400">{t.losses}</td><td className="p-3 text-center font-mono">{t.differential > 0 ? '+' : ''}{t.differential}</td><td className="p-3 text-center text-sm text-gray-400">{t.coachName}</td></tr>))}</tbody></table></div>); };
+  const renderMVP = () => { const killMap: Record<number, number> = {}; const deathMap: Record<number, number> = {}; league.schedule.forEach(m => { if(m.teamADetails) { Object.entries(m.teamADetails.kills).forEach(([id, k]) => killMap[Number(id)] = (killMap[Number(id)] || 0) + (k as number)); Object.entries(m.teamADetails.deaths).forEach(([id, d]) => deathMap[Number(id)] = (deathMap[Number(id)] || 0) + (d as number)); } if(m.teamBDetails) { Object.entries(m.teamBDetails.kills).forEach(([id, k]) => killMap[Number(id)] = (killMap[Number(id)] || 0) + (k as number)); Object.entries(m.teamBDetails.deaths).forEach(([id, d]) => deathMap[Number(id)] = (deathMap[Number(id)] || 0) + (d as number)); } }); const allMons: any[] = []; league.teams.forEach(t => t.roster.forEach(p => { if (killMap[p.id] || deathMap[p.id]) { allMons.push({ ...p, kills: killMap[p.id] || 0, deaths: deathMap[p.id] || 0, team: t }); } })); allMons.sort((a,b) => b.kills - a.kills); return (<div className="bg-gray-800 rounded border border-gray-700 overflow-hidden"><table className="w-full text-left"><thead className="bg-gray-900 text-gray-400 text-xs uppercase"><tr><th className="p-3">Rank</th><th className="p-3">Pokemon</th><th className="p-3">Team</th><th className="p-3 text-center">Kills</th><th className="p-3 text-center">Deaths</th><th className="p-3 text-center">K/D</th></tr></thead><tbody>{allMons.map((p, i) => (<tr key={p.id} className="border-b border-gray-700 hover:bg-white/5"><td className="p-3 font-mono text-gray-500">{i+1}</td><td className="p-3 flex items-center gap-2"><PokemonImage src={p.sprite} alt={p.name} className="w-8 h-8" /><span className="font-bold">{p.name}</span></td><td className="p-3 text-sm text-gray-400">{p.team.name}</td><td className="p-3 text-center font-bold text-green-400">{p.kills}</td><td className="p-3 text-center font-bold text-red-400">{p.deaths}</td><td className="p-3 text-center font-mono">{(p.kills / (p.deaths || 1)).toFixed(2)}</td></tr>))}</tbody></table></div>) };
+  const renderTransactions = () => (<div className="bg-gray-800 p-4 rounded border border-gray-700"><h3 className="text-xl font-bold mb-4">Transaction History</h3><div className="space-y-2">{league.transactions.map(t => (<div key={t.id} className="flex items-center gap-3 text-sm p-3 bg-gray-700/30 rounded"><span className="text-gray-400 w-24">{new Date(t.date).toLocaleDateString()}</span><span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${t.type === 'ADD' ? 'bg-green-900 text-green-200' : t.type === 'DROP' ? 'bg-red-900 text-red-200' : 'bg-blue-900 text-blue-200'}`}>{t.type}</span><div className="flex-1">{t.type === 'MATCH_REPORT' ? (<span className="text-gray-300 font-bold">{t.pokemonName}</span>) : (<><span className="font-bold text-gray-300">{t.teamName}</span> {t.type === 'ADD' ? 'added' : 'dropped'} <span className="font-bold text-yellow-500">{t.pokemonName}</span></>)}</div></div>))}</div></div>);
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-6 pb-24 space-y-6">
-       {/* Desktop Tabs */}
-       <div className="hidden md:flex bg-gray-800 rounded p-1 gap-1 overflow-x-auto">
-          {[
-             { id: 'home', label: 'Home' },
-             { id: 'standings', label: 'Standings' },
-             { id: 'schedule', label: 'Schedule' },
-             { id: 'playoffs', label: 'Playoffs' },
-             { id: 'mvp', label: 'MVP' },
-             { id: 'transactions', label: 'Transactions' },
-             { id: 'myteam', label: 'My Team' },
-             { id: 'analysis', label: 'Analysis' }
-          ].map(t => (
-             <button 
-               key={t.id} 
-               onClick={() => onTabChange(t.id)}
-               className={`px-4 py-2 rounded font-bold text-sm whitespace-nowrap transition ${activeTab === t.id ? 'bg-yellow-500 text-black shadow' : 'text-gray-400 hover:text-white hover:bg-gray-700'}`}
-             >
-                {t.label}
-             </button>
-          ))}
-       </div>
-
+       <div className="hidden md:flex bg-gray-800 rounded p-1 gap-1 overflow-x-auto">{[{ id: 'home', label: 'Home' }, { id: 'standings', label: 'Standings' }, { id: 'schedule', label: 'Schedule' }, { id: 'playoffs', label: 'Playoffs' }, { id: 'mvp', label: 'MVP' }, { id: 'transactions', label: 'Transactions' }, { id: 'myteam', label: 'My Team' }, { id: 'analysis', label: 'Analysis' }].map(t => (<button key={t.id} onClick={() => onTabChange(t.id)} className={`px-4 py-2 rounded font-bold text-sm whitespace-nowrap transition ${activeTab === t.id ? 'bg-yellow-500 text-black shadow' : 'text-gray-400 hover:text-white hover:bg-gray-700'}`}>{t.label}</button>))}</div>
        {activeTab === 'home' && <LeagueHome league={league} />}
        {activeTab === 'standings' && renderStandings()}
        {activeTab === 'schedule' && renderSchedule()}
@@ -2296,185 +1525,123 @@ const SeasonView: React.FC<{
        {activeTab === 'transactions' && renderTransactions()}
        {activeTab === 'myteam' && renderMyTeam()}
        {activeTab === 'analysis' && renderAnalysis()}
-
-       {reportingMatch && (
-           <MatchReportModal 
-             match={reportingMatch} 
-             league={league} 
-             onClose={() => setReportingMatch(null)} 
-             onSubmit={async (result) => {
-                 const newSchedule = league.schedule.map(m => m.id === reportingMatch.id ? { ...m, ...result, completed: true } : m);
-                 
-                 const winner = league.teams.find(t => t.id === result.winnerId);
-                 const loserId = result.winnerId === reportingMatch.teamAId ? reportingMatch.teamBId : reportingMatch.teamAId;
-                 const loser = league.teams.find(t => t.id === loserId);
-                 
-                 const newTeams = league.teams.map(t => {
-                     if (t.id === winner?.id) return { ...t, wins: t.wins + 1, differential: t.differential + (Math.abs(result.scoreA - result.scoreB)) };
-                     if (t.id === loser?.id) return { ...t, losses: t.losses + 1, differential: t.differential - (Math.abs(result.scoreA - result.scoreB)) };
-                     return t;
-                 });
-                 
-                 const trans: Transaction = {
-                     id: `match-${Date.now()}`,
-                     date: Date.now(),
-                     teamId: 'SYSTEM',
-                     teamName: 'System',
-                     type: 'MATCH_REPORT',
-                     pokemonName: `Week ${reportingMatch.week}: ${winner?.name} def. ${loser?.name} (${result.scoreA}-${result.scoreB})`,
-                     points: 0
-                 };
-
-                 await updateDoc(doc(db, 'leagues', league.id!), {
-                     schedule: newSchedule,
-                     teams: newTeams,
-                     transactions: [trans, ...(league.transactions || [])]
-                 });
-                 setReportingMatch(null);
-             }}
-           />
-       )}
-    </div>
-  );
-};
-
-const AuthScreen: React.FC = () => {
-    // ... existing AuthScreen code ...
-    const [isLogin, setIsLogin] = useState(true);
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-
-    const handleAuth = async () => {
-        try {
-            if (isLogin) {
-                await signInWithEmailAndPassword(auth, email, password);
-            } else {
-                await createUserWithEmailAndPassword(auth, email, password);
-            }
-        } catch (e: any) {
-            setError(e.message);
-        }
-    };
-
-    return (
-        <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-            <div className="bg-gray-800 p-8 rounded border border-gray-700 shadow-2xl w-full max-w-md">
-                <h1 className="text-3xl font-bold text-yellow-400 mb-6 text-center">PokeDraft Hub</h1>
-                <div className="space-y-4">
-                    <input 
-                      type="email" 
-                      placeholder="Email" 
-                      className="w-full bg-gray-700 p-3 rounded text-white"
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                    />
-                    <input 
-                      type="password" 
-                      placeholder="Password" 
-                      className="w-full bg-gray-700 p-3 rounded text-white"
-                      value={password}
-                      onChange={e => setPassword(e.target.value)}
-                    />
-                    {error && <div className="text-red-400 text-sm">{error}</div>}
-                    <button onClick={handleAuth} className="w-full bg-blue-600 p-3 rounded font-bold hover:bg-blue-500">
-                        {isLogin ? 'Login' : 'Sign Up'}
+       {reportingMatch && (<MatchReportModal match={reportingMatch} league={league} onClose={() => setReportingMatch(null)} onSubmit={async (result) => { const newSchedule = league.schedule.map(m => m.id === reportingMatch.id ? { ...m, ...result, completed: true } : m); const winner = league.teams.find(t => t.id === result.winnerId); const loserId = result.winnerId === reportingMatch.teamAId ? reportingMatch.teamBId : reportingMatch.teamAId; const loser = league.teams.find(t => t.id === loserId); const newTeams = league.teams.map(t => { if (t.id === winner?.id) return { ...t, wins: t.wins + 1, differential: t.differential + (Math.abs(result.scoreA - result.scoreB)) }; if (t.id === loser?.id) return { ...t, losses: t.losses + 1, differential: t.differential - (Math.abs(result.scoreA - result.scoreB)) }; return t; }); const trans: Transaction = { id: `match-${Date.now()}`, date: Date.now(), teamId: 'SYSTEM', teamName: 'System', type: 'MATCH_REPORT', pokemonName: `Week ${reportingMatch.week}: ${winner?.name} def. ${loser?.name} (${result.scoreA}-${result.scoreB})`, points: 0 }; await updateDoc(doc(db, 'leagues', league.id!), { schedule: newSchedule, teams: newTeams, transactions: [trans, ...(league.transactions || [])] }); setReportingMatch(null); }} />)}
+       
+       {confirmationData && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 animate-fade-in">
+            <div className="bg-gray-800 p-6 rounded-lg border border-yellow-500 shadow-2xl max-w-md w-full relative">
+                <h3 className="text-xl font-bold text-white mb-2">Confirm Action</h3>
+                <p className="text-gray-300 mb-6">{confirmationData.message}</p>
+                <div className="flex gap-4">
+                    <button 
+                        onClick={() => setConfirmationData(null)}
+                        className="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition"
+                    >
+                        Cancel
                     </button>
-                    <button onClick={() => setIsLogin(!isLogin)} className="w-full text-gray-400 text-sm hover:text-white">
-                        {isLogin ? 'Need an account? Sign Up' : 'Have an account? Login'}
+                    <button 
+                        onClick={() => {
+                            confirmationData.onConfirm();
+                            setConfirmationData(null);
+                        }}
+                        className="flex-1 bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-2 px-4 rounded transition shadow-[0_0_15px_rgba(234,179,8,0.4)]"
+                    >
+                        Confirm
                     </button>
                 </div>
             </div>
         </div>
-    );
+      )}
+    </div>
+  );
 };
 
 export const App: React.FC = () => {
-   const [user, setUser] = useState<User | null>(null);
-   const [loading, setLoading] = useState(true);
-   const [activeLeagueId, setActiveLeagueId] = useState<string | null>(null);
-   const [activeLeague, setActiveLeague] = useState<LeagueState | null>(null);
-   const [leaguesList, setLeaguesList] = useState<LeagueState[]>([]);
-   const [activeTab, setActiveTab] = useState('home');
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [activeLeagueId, setActiveLeagueId] = useState<string | null>(null);
+  const [league, setLeague] = useState<LeagueState | null>(null);
+  const [availableLeagues, setAvailableLeagues] = useState<LeagueState[]>([]);
+  const [activeTab, setActiveTab] = useState('home');
 
-   useEffect(() => {
-      const unsub = onAuthStateChanged(auth, (u) => {
-         setUser(u);
-         setLoading(false);
-      });
-      return unsub;
-   }, []);
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      setLoading(false);
+    });
+    return () => unsub();
+  }, []);
 
-   useEffect(() => {
-       fetchPokedex().then(data => {
-           (window as any).FULL_POKEDEX = data;
-       });
-   }, []);
+  useEffect(() => {
+    fetchPokedex().then(data => {
+      (window as any).FULL_POKEDEX = data;
+    });
+  }, []);
 
-   useEffect(() => {
-       if (!user) return;
-       const q = query(collection(db, 'leagues'));
-       const unsub = onSnapshot(q, (snap) => {
-           const list: LeagueState[] = [];
-           snap.forEach(d => {
-               const data = d.data() as LeagueState;
-               if (data.commissionerId === user.uid || data.teams.some(t => t.ownerId === user.uid)) {
-                   list.push({ ...data, id: d.id });
-               }
-           });
-           setLeaguesList(list);
-       });
-       return unsub;
-   }, [user]);
+  useEffect(() => {
+    if (!user) return;
+    const unsub = onSnapshot(collection(db, 'leagues'), (snap) => {
+      const list = snap.docs.map(d => ({ id: d.id, ...d.data() } as LeagueState));
+      setAvailableLeagues(list.filter(l => l.commissionerId === user.uid || l.teams.some(t => t.ownerId === user.uid)));
+    });
+    return () => unsub();
+  }, [user]);
 
-   useEffect(() => {
-       if (!activeLeagueId) {
-           setActiveLeague(null);
-           return;
-       }
-       const unsub = onSnapshot(doc(db, 'leagues', activeLeagueId), (doc) => {
-           if (doc.exists()) {
-               setActiveLeague({ ...doc.data(), id: doc.id } as LeagueState);
-           }
-       });
-       return unsub;
-   }, [activeLeagueId]);
+  useEffect(() => {
+    if (!activeLeagueId) return;
+    const unsub = onSnapshot(doc(db, 'leagues', activeLeagueId), (d) => {
+      if (d.exists()) setLeague({ id: d.id, ...d.data() } as LeagueState);
+    });
+    return () => unsub();
+  }, [activeLeagueId]);
 
-   if (loading) return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-yellow-400">Loading...</div>;
-   if (!user) return <AuthScreen />;
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
 
-   const handleLogout = () => signOut(auth);
+  const handleAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (isSignUp) await createUserWithEmailAndPassword(auth, email, password);
+      else await signInWithEmailAndPassword(auth, email, password);
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
 
-   return (
-       <div className="min-h-screen bg-gray-900 text-gray-100 font-sans selection:bg-yellow-500 selection:text-black">
-           <Navbar 
-             user={user} 
-             onLogout={handleLogout} 
-             leagueName={activeLeague?.name} 
-             onBack={activeLeague ? () => setActiveLeagueId(null) : undefined} 
-             activeTab={activeTab}
-             onTabChange={setActiveTab}
-           />
-           
-           <div className="pt-4">
-              {!activeLeague ? (
-                  <DashboardView 
-                    user={user} 
-                    availableLeagues={leaguesList} 
-                    onSelectLeague={(id, pool) => { 
-                        setActiveLeagueId(id); 
-                    }} 
-                  />
-              ) : (
-                  <>
-                      {activeLeague.phase === 'setup' && <LeagueLobby league={activeLeague} user={user} />}
-                      {activeLeague.phase === 'draft' && <DraftView league={activeLeague} user={user} />}
-                      {(activeLeague.phase === 'season' || activeLeague.phase === 'playoffs' || activeLeague.phase === 'completed') && (
-                          <SeasonView league={activeLeague} user={user} activeTab={activeTab} onTabChange={setActiveTab} />
-                      )}
-                  </>
-              )}
-           </div>
-       </div>
-   );
+  if (loading) return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading...</div>;
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+        <div className="bg-gray-800 p-8 rounded border border-gray-700 w-full max-w-md">
+          <h1 className="text-3xl font-bold text-yellow-400 text-center mb-6">PokeDraft Hub</h1>
+          <form onSubmit={handleAuth} className="space-y-4">
+            <input type="email" placeholder="Email" className="w-full bg-gray-700 p-3 rounded text-white" value={email} onChange={e => setEmail(e.target.value)} />
+            <input type="password" placeholder="Password" className="w-full bg-gray-700 p-3 rounded text-white" value={password} onChange={e => setPassword(e.target.value)} />
+            <button type="submit" className="w-full bg-yellow-500 text-black font-bold p-3 rounded">{isSignUp ? 'Sign Up' : 'Login'}</button>
+          </form>
+          <button onClick={() => setIsSignUp(!isSignUp)} className="w-full text-center mt-4 text-gray-400 text-sm">{isSignUp ? 'Have account? Login' : 'Need account? Sign Up'}</button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!activeLeagueId || !league) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-white">
+        <Navbar user={user} onLogout={() => signOut(auth)} activeTab="" onTabChange={() => {}} />
+        <DashboardView user={user} availableLeagues={availableLeagues} onSelectLeague={(id) => setActiveLeagueId(id)} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-900 text-white pb-24">
+      <Navbar user={user} onLogout={() => { signOut(auth); setActiveLeagueId(null); }} leagueName={league.name} onBack={() => { setActiveLeagueId(null); setLeague(null); setActiveTab('home'); }} activeTab={activeTab} onTabChange={setActiveTab} />
+      {league.phase === 'setup' && <LeagueLobby league={league} user={user} />}
+      {league.phase === 'draft' && <DraftView league={league} user={user} />}
+      {['season', 'playoffs', 'completed'].includes(league.phase) && <SeasonView league={league} user={user} activeTab={activeTab} onTabChange={setActiveTab} />}
+    </div>
+  );
 };
