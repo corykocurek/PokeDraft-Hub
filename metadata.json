@@ -1,0 +1,5 @@
+{
+  "name": "PokeDraft League Hub",
+  "description": "A comprehensive managing suite for Pokemon Draft Leagues featuring snake drafting, schedule management, and deep matchup analytics including speed tiers and type synergy grids.",
+  "requestFramePermissions": []
+}
